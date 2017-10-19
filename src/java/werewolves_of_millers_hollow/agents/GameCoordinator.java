@@ -1,18 +1,19 @@
-package werewolves_of_millers_hollow;
+package werewolves_of_millers_hollow.agents;
 
 import jade.core.Agent;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
+import werewolves_of_millers_hollow.behaviors.WaitForPlayers;
+import werewolves_of_millers_hollow.util.IOUtils;
 
 public class GameCoordinator extends Agent {
 	
 	@Override
 	protected void setup() {
-		System.out.println("Hello! GameCoordinator " + getAID().getName() + " is ready.");
+		IOUtils.log(getAID(), "Ready.");
 		
-		// Register the service in the yellow pages
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
 		ServiceDescription sd = new ServiceDescription();
@@ -31,13 +32,12 @@ public class GameCoordinator extends Agent {
 	
 	@Override
 	protected void takeDown() {
-		// Deregister the service
 		try {
 			DFService.deregister(this);
 		} catch (FIPAException e) {
 			e.printStackTrace();
 		}
 		
-		System.out.println("GameCoordinator " + getAID().getName() + " terminating.");
+		IOUtils.log(getAID(), "Terminating.");
 	}
 }
