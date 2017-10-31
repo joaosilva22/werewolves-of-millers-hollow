@@ -10,11 +10,16 @@
 
 \maketitle
 
-\section{Agent Specification}
+\section{Specification}
 
-\subsection{Abstract Architecture}
+\subsection{Agents}
+In order for the game to take place, agents need to assume all the necessary parts. For our purposes we consider each role to be a different type of agent. As such, at the highest level of abstraction, there are two main roles: The players and the game coordinator.
 
-\subsubsection{Environment}
+Players are responsible to play the actual game. They must negotiate with other players, collaborate with their team and compete with the opposing team with the ultimate purpose of winning the game. How they go about achieving this is dependant on which role they play. In practice, character agents will be a subclass of the abstract player agent that implement their specific behaviors.
+
+The game coordinator is responsible for controlling the flow of the game and relaying information about the environment to the players. It's the only purpose is to take the game all the way to completion.
+
+\subsection{Environment}
 In order to formalize the agent's architecture let us first consider the environment in which the agents will live in. The game's environment is the game state in each round; the number of agents still in play and their roles. According to Russell and Norvig (Russell and Norvig, 2010, p.42), an environment can be either: Single-Agent or Multi-Agent; Fully Observable or Partially Observable; Deterministic or Non-deterministic; Episodic or Sequential; Static or Dynamic; Discrete or Continuous; and Known or Unknown. We'll address each of these in order.
 
 The environment in which our agents interact is obviously multiagent, considering that the smallest number of agents required to play the game is eight. Not only that, it is a partially cooperative multiagent system given that agents on the same team (the townsfolk for example) must cooperate in order to win the game. But it is also a partially competitive multiagent system because, in the end, only one team is victorious; either the townsfolk kill all the werewolves, or the werewolves kill all the townsfolk.
