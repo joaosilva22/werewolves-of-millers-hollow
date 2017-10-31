@@ -44,9 +44,27 @@ For each number of players there are different combinations of roles:
 \subsection{Agents}
 In order for the game to take place, agents need to assume all the necessary parts. For our purposes we consider each role to be a different type of agent. As such, at the highest level of abstraction, there are two main roles: The players and the game coordinator.
 
-Players are responsible to play the actual game. They must negotiate with other players, collaborate with their team and compete with the opposing team with the ultimate purpose of winning the game. How they go about achieving this is dependant on which role they play. In practice, character agents will be a subclass of the abstract player agent that implement their specific behaviors.
+Players are responsible to play the actual game. They must negotiate with other players, collaborate with their team and compete with the opposing team with the ultimate purpose of winning the game. How they go about achieving this is dependant on which role they play. In practice, character agents will be a subclass of the abstract player agent that implement their specific behaviors:
 
 The game coordinator is responsible for controlling the flow of the game and relaying information about the environment to the players. It's the only purpose is to take the game all the way to completion.
+
+\begin{center}
+	\begin{tabular}{ p{3cm} l p{5cm} }
+	Agent & Inherits & Description \\
+	\hline
+	Game Coordinator & N/A & Responsible for controlling the game flow\\
+	Player & N/A \\
+	Werewolf & Player & Plays the role of the werewolf \\
+	Ordinary Townsperson & Player & Plays the role of the townsperson \\
+	Fortune Teller & Player & Plays the role of the fortune teller \\
+	Thief & Player & Plays the role of the thief \\
+	Hunter & Player & Plays the role of the hunter \\
+	Cupido & Player & Plays the role of the cupido \\
+	Witch & Player & Plays the role of the witch \\
+	Little Girl & Player & Plays the role of the little girl \\
+	Sheriff & Player & Plays the role of the sheriff \\
+	\end{tabular}
+\end{center}
 
 \subsection{Environment}
 In order to formalize the agent's architecture let us first consider the environment in which the agents will live in. The game's environment is the game state in each round; the number of agents still in play and their roles. According to Russell and Norvig (Russell and Norvig, 2010, p.42), an environment can be either: Single-Agent or Multi-Agent; Fully Observable or Partially Observable; Deterministic or Non-deterministic; Episodic or Sequential; Static or Dynamic; Discrete or Continuous; and Known or Unknown. We'll address each of these in order.
