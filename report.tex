@@ -1,0 +1,36 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{\textbf{Werewolves of Miller's Hollow}}
+\author{João Silva\\
+		Marcelo Ferreira\\
+		Miriam Gonçalves}
+\date{31 October, 2017}
+\begin{document}
+
+\maketitle
+
+\section{Agent Specification}
+
+\subsection{Abstract Architecture}
+
+\subsubsection{Environment}
+In order to formalize the agent's architecture let us first consider the environment in which the agents will live in. The game's environment is the game state in each round; the number of agents still in play and their roles. According to Russell and Norvig (Russell and Norvig, 2010, p.42), an environment can be either: Single-Agent or Multi-Agent; Fully Observable or Partially Observable; Deterministic or Non-deterministic; Episodic or Sequential; Static or Dynamic; Discrete or Continuous; and Known or Unknown. We'll address each of these in order.
+
+The environment in which our agents interact is obviously multiagent, considering that the smallest number of agents required to play the game is eight. Not only that, it is a partially cooperative multiagent system given that agents on the same team (the townsfolk for example) must cooperate in order to win the game. But it is also a partially competitive multiagent system because, in the end, only one team is victorious; either the townsfolk kill all the werewolves, or the werewolves kill all the townsfolk.
+
+Russell and Norvig describe a fully observable environment as an environment in which "the sensors detect all aspects that are relevant to the choice of action". That is decidedly not true in the environment of our game since agents purposely withhold information from each other. For example, a werewolf would not (except for strategic reasons) let others know that he is a werewolf, as that would get him lynched. As such the environment is partially observable; the agents cannot get reliable and up-to-date information regarding the environment from their sensors alone.
+
+In a deterministic environment, the next state of the environment can be fully determined given only the current state and the action executed by the agent. Because of that, it is not obvious whether the environment of our game is deterministic or non-deterministic. In one hand there is uncertainty in the outcome of the actions of any agent; Say agent A decided that agent B is definitely a werewolf and votes to lynch them, but because the other agents do not agree with A, agent C is lynched instead. In this case, the agent action (vote to lynch B) resulted in B being lynched but had the other agents agreed with A then agent B would be lynched instead. It's then clear that the same action from an agent could result in more than one outcome, suggesting a non-deterministic environment. However, because the uncertainty arises purely from the actions of other agents a case can be made that the environment is actually deterministic in that the same actions from all the agents in the system will always result in the same outcome.
+
+Deciding whether the environment is episodic or sequential is also not quite a trivial affair. At a glance we can say that each round is an episode, meaning that actions taken in each round are independent and do not depend on actions taken in previous rounds. But once we look closer it appears that that hypothesis does not hold; that some actions can have long-lasting consequences. For example, if the agents decide to kill the Fortune Teller early in the game, then from then on they have one less source of information from which to base their decisions on, affecting the way those decisions are made. The environment can then be considered sequential.
+
+A somewhat easier property of the environment to identify is whether it is static or dynamic. In our game, the state of the environment does not change while an agent is deliberating. The game is played in turns, and every environment altering decision is made once at the end of each turn by all agents, making the environment static.
+
+Discrete environments have a finite number of percepts and actions. This seems to be in line with the environment our game takes place in: The game is turn-based (or, in other words, is not a continuous-time problem) and there is only a finite number of states the environment can be in. 
+
+The last property of the environment is related to the state of knowledge of an agent about the laws or rules of the environment. In the case of our game every agent is aware of the game's rules (otherwise they would have to learn as they played, which is very hard if not impossible given no base knowledge about the game) which means that the environment is known.
+
+This makes our environment multiagent, partially observable, deterministic, sequential, static, discrete and known.
+
+\end{document}
