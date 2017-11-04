@@ -12,7 +12,7 @@ public class GameCoordinator extends Agent {
 	
 	@Override
 	protected void setup() {
-		IOUtils.log(getAID(), "Ready.");
+		IOUtils.log(this, "Ready.");
 		
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
@@ -38,6 +38,6 @@ public class GameCoordinator extends Agent {
 			e.printStackTrace();
 		}
 		
-		IOUtils.log(getAID(), "Terminating.");
+		IOUtils.log(this, "Terminating.");
 	}
 }

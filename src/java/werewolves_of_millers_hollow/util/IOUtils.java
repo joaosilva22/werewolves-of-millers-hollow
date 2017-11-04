@@ -8,7 +8,7 @@ import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import jade.core.AID;
+import jade.core.Agent;
 
 public class IOUtils {
 	private static final String LOG_PATH = "./logs/";
@@ -35,7 +35,7 @@ public class IOUtils {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
 	}
 	
-	public static void log(AID agent, String message) {
+	public static void log(Agent agent, String message) {
         String timestampedMessage = "[" + getCurrentTimeStamp() +  "] " + agent.getName() + ": " + message;
         System.out.println(timestampedMessage);
 

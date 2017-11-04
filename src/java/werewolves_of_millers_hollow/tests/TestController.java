@@ -12,11 +12,11 @@ public class TestController extends Agent {
 	
 	@Override
 	protected void setup() {
-		IOUtils.log(getAID(), "Ready.");
+		IOUtils.log(this, "Ready.");
 		
 		Object[] args = getArguments();
 		if (args.length != 1) {
-			IOUtils.log(getAID(), "Please provide the number of players.");
+			IOUtils.log(this, "Please provide the number of players.");
 			doDelete();
 		} else {
 			int players = Integer.parseInt(args[0].toString());
@@ -26,7 +26,7 @@ public class TestController extends Agent {
 				AgentController ac = cc.createNewAgent("Coordinator", GameCoordinator.class.getName(), null);
 				ac.start();
 			} catch (StaleProxyException e) {
-				IOUtils.log(getAID(), e.getMessage());
+				IOUtils.log(this, e.getMessage());
 				doDelete();
 			}
 			
@@ -36,18 +36,18 @@ public class TestController extends Agent {
 					AgentController ac = cc.createNewAgent("P" + (i+1), Player.class.getName(), null);
 					ac.start();
 				} catch (StaleProxyException e) {
-					IOUtils.log(getAID(), e.getMessage());
+					IOUtils.log(this, e.getMessage());
 					doDelete();
 				}
 			}
 			
-			IOUtils.log(getAID(), "Job done.");
+			IOUtils.log(this, "Job done.");
 			doDelete();
 		}
 	}
 
 	@Override
 	protected void takeDown() {
-		IOUtils.log(getAID(), "Terminating.");
+		IOUtils.log(this, "Terminating.");
 	}
 }
