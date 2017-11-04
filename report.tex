@@ -56,7 +56,11 @@ The last property of the environment is related to the state of knowledge of an 
 
 This makes our environment multiagent, partially observable, deterministic, sequential, static, discrete and known.
 
-\subsection{Negotiation Protocols}
+\subsection{Architecture}
+
+The most appropriate architecture for the agents in our game is a BDI architecture. The reason for this is that there is very little information available about the environment in the beginning of the game; Each agent begin with just a few beliefs. Knowledge about the world is obtained through interactions with other agents but that information cannot be taken as a fact because agents may, intentionally or unintentionally, provide false information. That is what Beliefs are for; they portray the environment based on what a given agent believes it's true at any given point, but are subject to change whenever new information is gathered.
+
+\subsection{Interaction Protocols}
 
 Negotiation is central to our game, as it is mainly dialog based. More specifically agents will attempt to reach agreement through argumentation; In other words agents should try to persuade others to act in accord with their intentions. As such it is necessary to establish an argumentation scheme so that agents can generate and analyze arguments from their beliefs.
 
@@ -93,5 +97,15 @@ If agent $j$ asks agent $i$ to perform action $\alpha$ and $i$ refuses on the gr
 
 \subsubsection{Appeal to self-interest}
 At times an agent can decide that a certain action contributes to the goals of another agent, but that the latter is not aware of it, so it uses it as an argument to get him to perform it. This is called an appeal to self-interest.
+
+\subsection{Project Plan}
+
+The project must be constructed iteratively, with each iteration building on the previous one and resulting in a deliverable.
+
+As such, we shall begin by implementing a simple game setup with just three types of agents: the Game Coordinator, the Townsperson, and the Werewolf. Also, at this point, the architecture will be fairly simple, not really involving negotiation and argumentation resulting in seemingly random agents.
+
+Next, we will begin adding special characters, starting with the Fortune Teller. At the same time, we will improve the architecture and try to introduce negotiation even if not in the form of argumentation.
+
+Following that, we will include all the other special characters and finalize the architecture so that it involves actual argumentation.
 
 \end{document}
