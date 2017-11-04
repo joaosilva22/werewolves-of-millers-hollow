@@ -3,7 +3,11 @@
 \usepackage{blindtext}
 \usepackage{enumitem}
 \usepackage{graphicx}
+\usepackage{hyperref}
 \graphicspath{ {images/} }
+
+\hypersetup{colorlinks=true,
+urlcolor=blue}
 
 \title{\textbf{Werewolves of Miller's Hollow}}
 \author{João Silva\\
@@ -53,9 +57,21 @@ This work has the goal to create the game \textit{Werewolves of Miller’s Hollo
 \subsection{Expected results and evaluation form}
 
 \section{Platform/Tool}
-\subsection{What it is used for}
-\subsection{Description of the main characteristics}
-\subsection{Highlight of the main features for the work}
+\subsection{JADE}
+\subsubsection{What it is used for}
+It simplifies the implementation of multi-agent systems through a middle-ware that complies with the FIPA specifications.
+\subsubsection{Description of the main characteristics}
+JADE is an opensource software fully implemented in JAVA. It allows to distribute agents across machines and the configuration can be controlled via a remote GUI. It also can be changed at run-time by moving agents to another machine. Each agent in JADE can have behaviours, that are tasks.
+Another characteristics of JADE is the communication between agents.
+\subsubsection{Highlight of the main features for the work}
+For this work, JADE provides comunication peer-to-peer between agents.
+\subsection{JASON}
+\subsubsection{What it is used for}
+JASON is a platform for the development of multi-agent systems. It is an interpreter for an extended version of AgentSpeak.
+\subsubsection{Description of the main characteristics}
+JASON is an opensource project and is developed in JAVA. It is fully customisable in JAVA, it can run a multi-agent system distributed over a network and implements the operational semantics of AgentSpeak.
+\subsubsection{Highlight of the main features for the work}
+For this work, JASON will be important to create BDI agents. 
 \section{Specification}
 
 \subsection{Agents}
@@ -156,6 +172,14 @@ Following that, we will include all the other special characters and finalize th
 
 \section{Resources}
 
+\subsection{Software}
+JADE \par
+\url{http://jade.tilab.com/} \par 
+\vspace{3mm}
+JASON \par
+\url{http://jason.sourceforge.net/wp/} \par 
+
+\subsection{Bibliography}
 \noindent
 (1) Wooldridge Michael, "An Introduction to MultiAgent Systems"
 
