@@ -30,14 +30,14 @@ public class WaitForPlayers extends CyclicBehaviour {
 				ACLMessage reply = msg.createReply();
 				if (!players.contains(msg.getSender())) {
 					players.add(msg.getSender());
-					IOUtils.log(myAgent.getAID(), "A new player has joined the game (" + players.size() + " of " + MIN_PLAYERS + " required).");
+					IOUtils.log(myAgent, "A new player has joined the game (" + players.size() + " of " + MIN_PLAYERS + " required).");
 					reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
 					if (players.size() >= MIN_PLAYERS) {
-						IOUtils.log(myAgent.getAID(), "Enough players have joined the game, waiting for any other players to join...");
+						IOUtils.log(myAgent, "Enough players have joined the game, waiting for any other players to join...");
 						state = State.ReadyToStart;
 					}
 				} else {
-					IOUtils.log(myAgent.getAID(), "Player " + msg.getSender().getName() + " tried to join the game, but is already in.");
+					IOUtils.log(myAgent, "Player " + msg.getSender().getName() + " tried to join the game, but is already in.");
 					reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
 				}
 				myAgent.send(reply);
@@ -57,7 +57,7 @@ public class WaitForPlayers extends CyclicBehaviour {
 					block();
 				}
 			}
-			IOUtils.log(myAgent.getAID(), "Starting the game...");
+			IOUtils.log(myAgent, "Starting the game...");
 		} break;
 		}
 	}

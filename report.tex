@@ -118,12 +118,78 @@ The last property of the environment is related to the state of knowledge of an 
 
 This makes our environment multiagent, partially observable, deterministic, sequential, static, discrete and known.
 
+\subsection{Architecture}
+
+The most appropriate architecture for the agents in our game is a BDI architecture. The reason for this is that there is very little information available about the environment in the beginning of the game; Each agent begin with just a few beliefs. Knowledge about the world is obtained through interactions with other agents but that information cannot be taken as a fact because agents may, intentionally or unintentionally, provide false information. That is what Beliefs are for; they portray the environment based on what a given agent believes it's true at any given point, but are subject to change whenever new information is gathered.
+
+\subsection{Interaction Protocols}
+
+Negotiation is central to our game, as it is mainly dialog based. More specifically agents will attempt to reach agreement through argumentation; In other words agents should try to persuade others to act in accord with their intentions. As such it is necessary to establish an argumentation scheme so that agents can generate and analyze arguments from their beliefs.
+
+In each round of the game agents will go around to every other and try to convince them to act in accord to their own interests. In practice the negotiation will happen over the role of each agent in the game so that agents may choose who they want to see lynched.
+
+Once an agent engages in negotiation with another one, then one (usually the initiatior) should assume the role of persuader and the other the role of the persuadee. Then in turns they present their arguments: the persuader tries to convince the persuadee to perform an action using some argument; then the persuadee either accepts or refuses, in which case it must provide a stronger argument. If the persuader wins the argument, then the persuadee changes its plans; otherwise everything stays the same.
+
+It is then important to determine the types of arguments allowed. For our purposes we'll borrow the argument types proposed in "Reaching agreements through argumentation: a logical model and implementation" (Sarit Kraus, Katia Sycara, Amir Evenchik, 1998):
+\begin{enumerate}
+\item{Threats}
+\item{Promise of future reward}
+\item{Appeal to past promise}
+\item{Counterexample}
+\item{Appeal to self-interest}
+\end{enumerate}
+
+\subsubsection{Threats}
+Threats can be used by a persuader to make a persuadee adopt one of the persuader's goals or to drop a goal that contradicts the its goals. 
+
+Say agent $i$ tries asks agent $j$ to perform an action $\alpha$ but $j$ refuses on the grounds that $\alpha$ contradicts its goal $g_1$. Then $i$ could try to convince $j$ by threatening to perform $\beta$ that goes against a goal $g_2$ of $j$ (according to the beliefs of $i$). At that point $j$ should analyze the validity of the threat; Is $g_2$ more important to $j$ than $g_1$? Is $i$ cappable of carrying out its threat? If $j$ concludes that the threat is real then it could give in and perform $\alpha$ (abandoning its goal $g_1$).
+
+\subsubsection{Promise of future reward}
+An agent can entice another to perform an action that goes against its immediate goals by promising a reward, for example, performing an action that contributes to a goal that the former values highly. 
+
+This is very much like trading favors; agent $i$ tries to get agent $j$ to perform $\alpha$ now by promising to perform $\beta$ in the future. In this situation $i$ may choose perform $\alpha$ if it decides that $\beta$ contributes to a goal that is highly valued.
+
+\subsubsection{Appeal to past promise}
+Promises are no good if agents do not keep them. As such, agents can appeal to promises that others have made to them and thus get them to act in accord with their goals.
+
+It is important to note that agents can choose not to fulfill their promises. However, it may be in their best interest to do so, because if not other agents may label them as untrustworthy and promises of future reward arguments become ineffective.
+
+\subsubsection{Counterexample}
+If agent $j$ asks agent $i$ to perform action $\alpha$ and $i$ refuses on the grounds that $\alpha$ contradicts one of its goals $g_1$ then $j$ may inform $i$ that in the past $i$  performed action $\alpha$ and it did not condradict goal $g_1$. In other words, $j$ could try to convince $i$ using a counterexample.
+
+\subsubsection{Appeal to self-interest}
+At times an agent can decide that a certain action contributes to the goals of another agent, but that the latter is not aware of it, so it uses it as an argument to get him to perform it. This is called an appeal to self-interest.
+
+\subsection{Project Plan}
+
+The project must be constructed iteratively, with each iteration building on the previous one and resulting in a deliverable.
+
+As such, we shall begin by implementing a simple game setup with just three types of agents: the Game Coordinator, the Townsperson, and the Werewolf. Also, at this point, the architecture will be fairly simple, not really involving negotiation and argumentation resulting in seemingly random agents.
+
+Next, we will begin adding special characters, starting with the Fortune Teller. At the same time, we will improve the architecture and try to introduce negotiation even if not in the form of argumentation.
+
+Following that, we will include all the other special characters and finalize the architecture so that it involves actual argumentation.
+
 \section{Resources}
-\subsection{Bibliography}
+
 \subsection{Software}
 JADE \par
 \url{http://jade.tilab.com/} \par 
 \vspace{3mm}
 JASON \par
 \url{http://jason.sourceforge.net/wp/} \par 
+
+\subsection{Bibliography}
+\noindent
+(1) Wooldridge Michael, "An Introduction to MultiAgent Systems"
+
+\noindent
+(2) Ashraf El-Sisi, Hamdy Mousa, "Argumentation Based Negotiation in Multi-agent System"
+
+\noindent
+(3) Sarit Kraus, Katia Sycara, Amir Evenchik, "Reaching agreements through argumentation: a logical model and implementation"
+
+\noindent
+(4) Stuart Russell, Peter Norvig, "Artificial Intelligence: A Modern Approach"
+
 \end{document}
