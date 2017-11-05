@@ -21,8 +21,25 @@ linkcolor=black}
 \date{31 October, 2017}
 \begin{document}
 
-\maketitle
+\begin{titlepage}
+	\centering
+	\includegraphics[width=1\textwidth]{FEUPlogo}\par\vspace{1cm}
+	{\huge\bfseries Werewolves of Miller's Hollow \par}
+	\vspace{2cm}
+	{\scshape\Large Intermediate Report\par}
+	\vspace{1.5cm}
+	{\large\bfseries Agents and Distributed Artificial Intelligence\par}
+	\vspace{0.7cm}
+	{\scshape\normalsize  Master in Informatics and Computing Engineering \par}
+	\vspace{1.5cm}
+	{\Large\itshape Group T08\textunderscore01 \par João Silva - up201405490 \par
+	Marcelo Ferreira - up201405323 \par
+	Miriam Gonçalves - up201403441\par}
 
+	\vfill
+% Bottom of the page
+	{\large \today\par}
+\end{titlepage}
 \thispagestyle{empty}
 
 \newpage
@@ -90,19 +107,19 @@ This work has the goal to create the game \textit{Werewolves of Miller’s Hollo
 \section{Platform/Tool}
 \subsection{JADE}
 \subsubsection{What it is used for}
-It simplifies the implementation of multi-agent systems through a middle-ware that complies with the FIPA specifications.
+It simplifies the implementation of multi-agent systems through a middle-ware that complies with the FIPA(\textit{Foundation for Intelligent Physical Agents}) specifications.
 \subsubsection{Description of the main characteristics}
-JADE is an opensource software fully implemented in JAVA. It allows to distribute agents across machines and the configuration can be controlled via a remote GUI. It also can be changed at run-time by moving agents to another machine. Each agent in JADE can have behaviours, that are tasks.
+JADE is an open source software fully implemented in JAVA. It allows to distribute agents across machines and the configuration can be controlled via a remote GUI. It also can be changed at run-time by moving agents to another machine. Each agent in JADE can have behaviours, that are tasks.
 Another characteristics of JADE is the communication between agents.
 \subsubsection{Highlight of the main features for the work}
-For this work, JADE provides comunication peer-to-peer between agents.
-\subsection{JASON}
+For this work, JADE provides comunication peer-to-peer between agents and also the creation of some behaviours
+\subsection{Jason}
 \subsubsection{What it is used for}
-JASON is a platform for the development of multi-agent systems. It is an interpreter for an extended version of AgentSpeak.
+Jason is a platform for the development of multi-agent systems. It is an interpreter for an extended version of AgentSpeak.
 \subsubsection{Description of the main characteristics}
-JASON is an opensource project and is developed in JAVA. It is fully customisable in JAVA, it can run a multi-agent system distributed over a network and implements the operational semantics of AgentSpeak.
+Jason is an open source project and is developed in JAVA. It is fully customisable in JAVA, it can run a multi-agent system distributed over a network and implements the operational semantics of AgentSpeak.
 \subsubsection{Highlight of the main features for the work}
-For this work, JASON will be important to create BDI agents. 
+For this work, Jason will be important to create BDI agents. 
 \section{Specification}
 
 \subsection{Agents}
@@ -204,11 +221,14 @@ Following that, we will include all the other special characters and finalize th
 \section{Resources}
 
 \subsection{Software}
+Eclipse \par
+\url{http://www.eclipse.org/} \par
+\vspace{3mm}
 JADE \par
 \url{http://jade.tilab.com/} \par 
 \vspace{3mm}
-JASON \par
-\url{http://jason.sourceforge.net/wp/} \par 
+Jason \par
+\url{http://Jason.sourceforge.net/wp/} \par 
 
 \subsection{Bibliography}
 \noindent
