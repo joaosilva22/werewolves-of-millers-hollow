@@ -1,6 +1,5 @@
 /* Initial beliefs */
 required_players(8).
-day(1).
 
 /* Rules */
 enough_players :- 
@@ -10,8 +9,7 @@ enough_players :-
 	CntPlayer = CntTownsfolk + CntWerewolves &
 	CntPlayer >= MinPlayer.
 	
-all_werewolves_voted :-
-	day(Day) &
+all_werewolves_voted(Day) :-
 	.count(role(werewolf, _), CntWerewolves) &
 	.count(vote(_, Day, _), CntVotes) &
 	CntWerewolves == CntVotes.
@@ -35,7 +33,7 @@ all_werewolves_voted :-
 	   .findall([Role, Name], role(Role, Name), Players);
 	   !inform_townsfolk(Players);
 	   !inform_werewolves(Players);
-	   !start_turn.
+	   !start_turn(1).
 +!setup_game
 	: not enough_players
 	<- .print("Not enough players have joined").
@@ -67,28 +65,52 @@ all_werewolves_voted :-
 	   !inform_werewolves(T).
 
 /* Begins the turn */
-+!start_turn
-	: day(Day) & Day < 5
-	<- ?day(Day);
-	   .findall(Name, role(werewolf, Name), Werewolves);
++!start_turn(Day)
+	: Day < 5
+	<- .findall(Name, role(werewolf, Name), Werewolves);
 	   .send(Werewolves, tell, day(Day)).
-+!start_turn
++!start_turn(_)
 	: true
 	<- .print("Reached day number 5.").
 
-/* Receive werewolf vote */
+/* Receive werewolf votes */
 +vote(Werewolf, Day, Player)
-	: all_werewolves_voted
+	: all_werewolves_voted(Day) 
 	<- .print("Werewolf ", Werewolf, " voted. Day=", Day, " Player=", Player);
 	   .print("All werewolves have voted.");
-	   -+day(Day + 1);
-	   !start_turn.
+	   .findall(Name, role(_, Name), Players);
+	   !get_highest_voted_player(Day, Players, 0, VotedPlayer).
 +vote(Werewolf, Day, Player)
-	: not all_werewolves_voted
+	: not all_werewolves_voted(Day)
 	<- .print("Werewolf ", Werewolf, " voted. Day=", Day, " Player=", Player).
-	
-/* Count the votes for a player */
-+!count_votes(Day, Player, CntVotes)
+	   
+/* Get the player with highest number of votes */
++!get_highest_voted_player(Day, [], CntVotes, VotedPlayer)
+	: true
+	<- .print("The player with the most votes is ", VotedPlayer, " with ", CntVotes, " votes.");
+	   !kill_player(Day, VotedPlayer). 
++!get_highest_voted_player(Day, [Player|T], CntMax, PlayerMax)
 	: true
 	<- .findall(Player, vote(_, Day, Player), Votes);
-	   .length(Votes, CntVotes).
+	   .length(Votes, CntPlayer);
+	   if (CntPlayer >= CntMax) 
+	   {
+	       !get_highest_voted_player(Day, T, CntPlayer, Player);	
+	   }
+	   else 
+	   {
+	   	   !get_highest_voted_player(Day, T, CntMax, PlayerMax);
+	   }.
+
+/* Eliminate a player from the game */
++!kill_player(Day, Player)
+	: true
+	<- -role(Role, Player);
+	   !inform_of_dead_player(Day, Player, Role).
+	   
+/* Inform players that someone has been eliminated */
++!inform_of_dead_player(Day, Name, Role)
+	: true
+	<- .findall(Player, role(_, Player), Players);
+	   .send(Players, tell, dead(Player, Role))
+	   !start_turn(Day + 1).
