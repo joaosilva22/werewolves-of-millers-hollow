@@ -15,6 +15,9 @@ living_werewolves(2).
 	: true
 	<- .print("I've learned that ", Player, " is playing the game.").
 	
+/* Wake up */
+// TODO(jp): Atualizar o dia nos beliefs deste agente
+	
 /* Remove eliminated player from database */
 +dead(Player, _)
 	: alive & .my_name(Player)

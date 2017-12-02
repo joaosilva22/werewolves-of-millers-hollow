@@ -11,7 +11,7 @@ enough_players :-
 	
 all_werewolves_voted(Day) :-
 	.count(role(werewolf, _), CntWerewolves) &
-	.count(vote(_, Day, _), CntVotes) &
+	.count(voted_to_murder(Day, _, _), CntVotes) &
 	CntWerewolves == CntVotes.
 
 /* Initial goals */
@@ -67,50 +67,50 @@ all_werewolves_voted(Day) :-
 /* Begins the turn */
 +!start_turn(Day)
 	: Day < 5
-	<- .findall(Name, role(werewolf, Name), Werewolves);
-	   .send(Werewolves, tell, day(Day)).
+	<- !wake_up_werewolves(Day).
 +!start_turn(_)
-	: true
 	<- .print("Reached day number 5.").
+	
+/* Wake up werewolves */
++!wake_up_werewolves(Day)
+	<- .print("The werewolves wake up...");
+	   .findall(Name, role(werewolf, Name), Werewolves);
+	   .send(Werewolves, tell, day(Day)).
 
-/* Receive werewolf votes */
-+vote(Werewolf, Day, Player)
+/* Receive votes from werewolves */
++voted_to_murder(Werewolf, Day, Player)
 	: all_werewolves_voted(Day) 
-	<- .print("Werewolf ", Werewolf, " voted. Day=", Day, " Player=", Player);
-	   .print("All werewolves have voted.");
-	   .findall(Name, role(_, Name), Players);
-	   !get_highest_voted_player(Day, Players, 0, VotedPlayer).
-+vote(Werewolf, Day, Player)
-	: not all_werewolves_voted(Day)
-	<- .print("Werewolf ", Werewolf, " voted. Day=", Day, " Player=", Player).
-	   
-/* Get the player with highest number of votes */
-+!get_highest_voted_player(Day, [], CntVotes, VotedPlayer)
-	: true
-	<- .print("The player with the most votes is ", VotedPlayer, " with ", CntVotes, " votes.");
-	   !kill_player(Day, VotedPlayer). 
-+!get_highest_voted_player(Day, [Player|T], CntMax, PlayerMax)
-	: true
-	<- .findall(Player, vote(_, Day, Player), Votes);
-	   .length(Votes, CntPlayer);
-	   if (CntPlayer >= CntMax) 
+	<- .print("All werewolves have voted.");
+	   .findall(Vote, vote(_, Day, Vote), Votes);
+	   actions.count_player_votes(Votes, MostVotedPlayers, MostVotedCnt);
+	   .length(MostVotedPlayers, CntMostVotedPlayers);
+	   if (CntMostVotedPlayers > 1) 
 	   {
-	       !get_highest_voted_player(Day, T, CntPlayer, Player);	
-	   }
+	       .print("Thats a tie! Players=", MostVotedPlayers, " VoteCnt=", MostVotedCnt);
+	       !start_turn(Day + 1);
+	   } 
 	   else 
 	   {
-	   	   !get_highest_voted_player(Day, T, CntMax, PlayerMax);
+	   	   .nth(0, MostVotedPlayers, DeadPlayer);
+	   	   .print(DeadPlayer, " has been murdered.");
+	   	   !eliminate_player(Day, DeadPlayer);
 	   }.
 
 /* Eliminate a player from the game */
-+!kill_player(Day, Player)
++!eliminate_player(Day, DeadPlayer)
 	: true
-	<- -role(Role, Player);
-	   !inform_of_dead_player(Day, Player, Role).
+	<- ?role(Role, DeadPlayer);
+	   -role(_, DeadPlayer);
+	   !inform_of_dead_player(Day, DeadPlayer, Role).
 	   
 /* Inform players that someone has been eliminated */
-+!inform_of_dead_player(Day, Name, Role)
++!inform_of_dead_player(Day, DeadPlayer, Role)
 	: true
 	<- .findall(Player, role(_, Player), Players);
-	   .send(Players, tell, dead(Player, Role))
+	   .send(Players, tell, dead(DeadPlayer, Role));
 	   !start_turn(Day + 1).
+	   
+/* Wake up townsfolk */
++!wake_up_townsfolfk(Day)
+	<- .findall(Player, role(townsperson, Player), Townsfolk);
+	   .send(Townsfolk, tell, day(Day)).
