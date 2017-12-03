@@ -26,7 +26,8 @@ alive.
 	   .print("It is the night of day number ", Day);
 	   .findall(Name, player(Name), Players);
 	   actions.random_player(Players, Player);
-	   .send(game_coordinator, tell, voted_to_murder(Day, Me, Player)).
+	   .send(game_coordinator, tell, voted_to_murder(Me,Day, Player));
+	   .print("sended vote").
 	   
 /* Remove eliminated player from database */
 +dead(Player, Role)

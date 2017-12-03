@@ -6,12 +6,12 @@ enough_players :-
 	required_players(MinPlayer) &
 	.count(role(townsperson, _), CntTownsfolk) &
 	.count(role(werewolf, _), CntWerewolves) &
-	CntPlayer = CntTownsfolk + CntWerewolves &
+	CntPlayer = CntTownsfolk + CntWerewolves  + 1 &
 	CntPlayer >= MinPlayer.
 	
 all_werewolves_voted(Day) :-
 	.count(role(werewolf, _), CntWerewolves) &
-	.count(voted_to_murder(Day, _, _), CntVotes) &
+	.count(voted_to_murder(_, Day, _), CntVotes) &
 	CntWerewolves == CntVotes.
 
 /* Initial goals */
@@ -33,6 +33,7 @@ all_werewolves_voted(Day) :-
 	   .findall([Role, Name], role(Role, Name), Players);
 	   !inform_townsfolk(Players);
 	   !inform_werewolves(Players);
+	   !inform_fortune_teller(Players)
 	   !start_turn(1).
 +!setup_game
 	: not enough_players
@@ -40,6 +41,14 @@ all_werewolves_voted(Day) :-
 +!setup_game
 	: setup
 	<- .print("Game has already begun.").
+	
+/* Tell fortune_teller about the other players */
++!inform_fortune_teller([])
+	<- true.
++!inform_fortune_teller([[_,Player]|T])
+	: setup
+	<- .send(fortune_teller, tell, player(Player));
+	   !inform_fortune_teller(T).
 	
 /* Tell townsfolk about the other players */
 +!inform_townsfolk([])
@@ -67,9 +76,15 @@ all_werewolves_voted(Day) :-
 /* Begins the turn */
 +!start_turn(Day)
 	: Day < 5
-	<- !wake_up_werewolves(Day).
+	<- 	!wake_up_fortune_teller(Day);
+		!wake_up_werewolves(Day).
 +!start_turn(_)
 	<- .print("Reached day number 5.").
+
+/* Wake up fortune teller */
++!wake_up_fortune_teller(Day)
+	<- .print("The fortune teller wakes up...");
+	   .send(fortune_teller, tell, find_true_personality(Day)).	
 	
 /* Wake up werewolves */
 +!wake_up_werewolves(Day)
@@ -81,7 +96,7 @@ all_werewolves_voted(Day) :-
 +voted_to_murder(Werewolf, Day, Player)
 	: all_werewolves_voted(Day) 
 	<- .print("All werewolves have voted.");
-	   .findall(Vote, vote(_, Day, Vote), Votes);
+	   .findall(Vote, voted_to_murder(_, Day, Vote), Votes);
 	   actions.count_player_votes(Votes, MostVotedPlayers, MostVotedCnt);
 	   .length(MostVotedPlayers, CntMostVotedPlayers);
 	   if (CntMostVotedPlayers > 1) 
@@ -114,3 +129,10 @@ all_werewolves_voted(Day) :-
 +!wake_up_townsfolfk(Day)
 	<- .findall(Player, role(townsperson, Player), Townsfolk);
 	   .send(Townsfolk, tell, day(Day)).
+	   
+/* Tell to the fortune_teller the true personality of a Player */
++tell_personality(Player)
+	:true
+	<- ?role(Role, Player);
+	   .send(fortune_teller, tell, true_identity(Player, Role)).	  
+	  	   
