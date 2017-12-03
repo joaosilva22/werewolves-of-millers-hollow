@@ -6,7 +6,7 @@ enough_players :-
 	required_players(MinPlayer) &
 	.count(role(townsperson, _), CntTownsfolk) &
 	.count(role(werewolf, _), CntWerewolves) &
-	CntPlayer = CntTownsfolk + CntWerewolves &
+	CntPlayer = CntTownsfolk + CntWerewolves  + 1 &
 	CntPlayer >= MinPlayer.
 	
 all_werewolves_voted(Day) :-
@@ -52,6 +52,7 @@ werewolves_have_won :-
 	   .findall([Role, Name], role(Role, Name), Players);
 	   !inform_townsfolk(Players);
 	   !inform_werewolves(Players);
+	   !inform_fortune_teller(Players)
 	   !start_turn(1).
 +!setup_game
 	: not enough_players
@@ -59,6 +60,14 @@ werewolves_have_won :-
 +!setup_game
 	: setup
 	<- .print("Game has already begun.").
+	
+/* Tell fortune_teller about the other players */
++!inform_fortune_teller([])
+	<- true.
++!inform_fortune_teller([[_,Player]|T])
+	: setup
+	<- .send(fortune_teller, tell, player(Player));
+	   !inform_fortune_teller(T).
 	
 /* Tell townsfolk about the other players */
 +!inform_townsfolk([])
@@ -90,6 +99,11 @@ werewolves_have_won :-
 /* Begins the turn */
 +!start_turn(Day)
 	<- !wake_up_werewolves(Day).
+
+/* Wake up fortune teller */
++!wake_up_fortune_teller(Day)
+	<- .print("The fortune teller wakes up...");
+	   .send(fortune_teller, tell, find_true_personality(Day)).	
 	
 /* Before waking up the werewolves, check if there are any still alive */
 +!wake_up_werewolves(Day)
@@ -179,3 +193,9 @@ werewolves_have_won :-
 	   /* Send the town to sleep */
 	   .print("The town goes to sleep, hoping for the best.")
 	   !start_turn(Day + 1).
+	   
+/* Tell to the fortune_teller the true personality of a Player */
++tell_personality(Player)
+	:true
+	<- ?role(Role, Player);
+	   .send(fortune_teller, tell, true_identity(Player, Role)).
