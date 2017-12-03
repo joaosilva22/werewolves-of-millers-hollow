@@ -11,12 +11,14 @@ living_werewolves(2).
 	<- .send(Coordinator, tell, role(townsperson, Me)).
 	
 /* Add other players to the database */
-+player(Player)
-	: true
-	<- .print("I've learned that ", Player, " is playing the game.").
++player(Player) : not .my_name(Player).
 	
 /* Wake up */
-// TODO(jp): Atualizar o dia nos beliefs deste agente
++day(Day)
+	<- .my_name(Me);
+	   .findall(Name, player(Name), Players);
+	   actions.random_player(Players, Player);
+	   .send(game_coordinator, tell, voted_to_lynch(Day, Me, Player)).
 	
 /* Remove eliminated player from database */
 +dead(Player, _)
@@ -26,7 +28,7 @@ living_werewolves(2).
 	: alive
 	<- ?living_werewolves(Werewolves); 
 	   -+living_werewolves(Werewolves-1);
-	   -player(Player).
+	   .abolish(player(Player)).
 +dead(Player, _)
 	: alive
-	<- -player(Player).
+	<- .abolish(player(Player)).

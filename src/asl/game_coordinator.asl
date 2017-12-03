@@ -11,17 +11,36 @@ enough_players :-
 	
 all_werewolves_voted(Day) :-
 	.count(role(werewolf, _), CntWerewolves) &
-	.count(voted_to_murder(Day, _, _), CntVotes) &
+	.count(voted_to_eliminate(Day, _, _), CntVotes) &
 	CntWerewolves == CntVotes.
+	
+everyone_has_voted(Day) :-
+	.count(role(_, _), CntPlayers) &
+	.count(voted_to_lynch(Day, _, _), CntVotes) &
+	CntPlayers == CntVotes.
+	
+townsfolk_have_won :-
+	.count(role(werewolf, _), CntWerewolves) &
+	.print(CntWerewolves, " werewolves are still alive.") &
+	CntWerewolves == 0.
+	
+werewolves_have_won :-
+	.count(role(werewolf, _), CntWerewolves) &
+	.count(role(_, _), CntPlayers) &
+	.print((CntPlayers-CntWerewolves), " players are still alive.") &
+	(CntPlayers-CntWerewolves) == 0.
 
 /* Initial goals */
 !setup_game.
 
 /* Plans */
 +role(Role, Player)
-	: true
 	<- .print("Player ", Player, " (", Role ,") has joined the game.");
 	   !setup_game.
+
+/*
+ * Game setup
+ */
 
 /* Do the initial setup and start the game */
 +!setup_game
@@ -63,54 +82,100 @@ all_werewolves_voted(Day) :-
 	<- .findall(Name, role(werewolf, Name), Werewolves);
 	   .send(Werewolves, tell, player(Player));
 	   !inform_werewolves(T).
+	   
+/*
+ * Game loop
+ */
 
 /* Begins the turn */
 +!start_turn(Day)
-	: Day < 5
 	<- !wake_up_werewolves(Day).
-+!start_turn(_)
-	<- .print("Reached day number 5.").
 	
-/* Wake up werewolves */
+/* Before waking up the werewolves, check if there are any still alive */
 +!wake_up_werewolves(Day)
-	<- .print("The werewolves wake up...");
+	: townsfolk_have_won
+	<- .print("The townsfolk have won in ", Day, " days.").
+	
+/* Before waking up the werewolves, check if there is any townsfolk left alive */
++!wake_up_werewolves(Day)
+	: werewolves_have_won
+	<- .print("The werewolves have won in ", Day, " days.").
+	
+/* Wake up the werewolves */
++!wake_up_werewolves(Day)
+	<- .print("It is the night of day ", Day, ". The werewolves wake up...");
 	   .findall(Name, role(werewolf, Name), Werewolves);
-	   .send(Werewolves, tell, day(Day)).
+	   .send(Werewolves, tell, night(Day)).
 
-/* Receive votes from werewolves */
-+voted_to_murder(Werewolf, Day, Player)
+/* When all the werewolves have voted, someone is killed */
++voted_to_eliminate(Day, Werewolf, Player)
 	: all_werewolves_voted(Day) 
 	<- .print("All werewolves have voted.");
-	   .findall(Vote, vote(_, Day, Vote), Votes);
+	   .findall(Vote, voted_to_eliminate(Day, _, Vote), Votes);
 	   actions.count_player_votes(Votes, MostVotedPlayers, MostVotedCnt);
 	   .length(MostVotedPlayers, CntMostVotedPlayers);
 	   if (CntMostVotedPlayers > 1) 
 	   {
-	       .print("Thats a tie! Players=", MostVotedPlayers, " VoteCnt=", MostVotedCnt);
-	       !start_turn(Day + 1);
+	   	   /* The werewolves could not reach an agreement, so nobody dies */
+	       .print("The werewolves were not able to agree on a victim. Nobody dies tonight.");
+	       !wake_up_town(Day);
+	   }
+	   else 
+	   {
+	   	   /* Eliminate the player from the game */	
+	   	   .nth(0, MostVotedPlayers, DeadPlayer);
+	   	   ?role(Role, DeadPlayer);
+	   	   .abolish(role(_, DeadPlayer));
+	   	   !wake_up_town(Day, DeadPlayer, Role);
+	   }.
+	   
+/* Wake up the town */
++!wake_up_town(Day)
+	<- .print("It is the morning of day ", Day, ". The people of the town wake up.");
+	   .findall(Player, role(_, Player), Players);
+	   .send(Players, tell, day(Day)).
+	   
+/* Before waking up the town, check if there is any townsfolk still alive */
++!wake_up_town(Day, _, _)
+	: werewolves_have_won
+	<- .print("The wereolves have won in ", Day, " days.").
+
+/* Wake up the town when somebody was killed during the night */
++!wake_up_town(Day, Player, Role)
+	<- .print("It is the morning of day ", Day, ".") 
+	   .print("The people of the town wake up, just to find that something terrible happened during the night!");
+	   .print(Player, " was found dead with bite marks.");
+	   .print("Upon further inspection of the body, it was discovered that they were a ", Role, ".");
+	   /* Tell others about the death of the player */
+	   .findall(Other, role(_, Other), Others);
+	   .send(Others, tell, dead(Player, Role));
+	   /* Wake everyone up */
+	   .send(Others, tell, day(Day)).
+	   
+/* When everyone in the town has voted, someone is lynched */
++voted_to_lynch(Day, Accuser, Player)
+	: everyone_has_voted(Day)
+	<- .print("The town has finished deliberating.");
+	   .findall(Vote, voted_to_lynch(Day, _, Vote), Votes);
+	   actions.count_player_votes(Votes, MostVotedPlayers, MostVotedCnt);
+	   .length(MostVotedPlayers, CntMostVotedPlayers);
+	   if (CntMostVotedPlayers > 1) 
+	   {
+	   	   /* The town could not reach an agreement, so nobody dies */
+	       .print("The town could not reach an agreement, so nobody was lynched.");
 	   } 
 	   else 
 	   {
+	   	   /* Eliminate the player from the game */	
 	   	   .nth(0, MostVotedPlayers, DeadPlayer);
-	   	   .print(DeadPlayer, " has been murdered.");
-	   	   !eliminate_player(Day, DeadPlayer);
-	   }.
-
-/* Eliminate a player from the game */
-+!eliminate_player(Day, DeadPlayer)
-	: true
-	<- ?role(Role, DeadPlayer);
-	   -role(_, DeadPlayer);
-	   !inform_of_dead_player(Day, DeadPlayer, Role).
-	   
-/* Inform players that someone has been eliminated */
-+!inform_of_dead_player(Day, DeadPlayer, Role)
-	: true
-	<- .findall(Player, role(_, Player), Players);
-	   .send(Players, tell, dead(DeadPlayer, Role));
+	   	   ?role(Role, DeadPlayer);
+	   	   .abolish(role(_, DeadPlayer));
+	   	   /* Tell others about the death of the player */
+	   	   .print(DeadPlayer, " was lynched.");
+	   	   .print("After inspecting the body it was determined that they were a ", Role, ".");
+	   	   .findall(Other, role(_, Other), Others);
+	   	   .send(Others, tell, dead(DeadPlayer, Role));
+	   };
+	   /* Send the town to sleep */
+	   .print("The town goes to sleep, hoping for the best.")
 	   !start_turn(Day + 1).
-	   
-/* Wake up townsfolk */
-+!wake_up_townsfolfk(Day)
-	<- .findall(Player, role(townsperson, Player), Townsfolk);
-	   .send(Townsfolk, tell, day(Day)).
