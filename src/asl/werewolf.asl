@@ -31,7 +31,9 @@ alive.
 	   .print(Me, " wakes up.");
 	   .findall(Name, player(Name), Players);
 	   actions.random_player(Players, Player);
-	   .send(game_coordinator, tell, voted_to_lynch(Day, Me, Player)).
+	   .send(game_coordinator, tell, voted_to_lynch(Day, Me, Player));
+	   /* Tell everyone else who the player is voting for */
+	   .send(Players, tell, voted_to_lynch(Day, Me, Player)).
 	   
 /* Remove eliminated player from database */
 +dead(Player, Role)

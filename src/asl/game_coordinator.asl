@@ -21,13 +21,13 @@ everyone_has_voted(Day) :-
 	
 townsfolk_have_won :-
 	.count(role(werewolf, _), CntWerewolves) &
-	.print(CntWerewolves, " werewolves are still alive.") &
+	/* .print(CntWerewolves, " werewolves are still alive.") & */
 	CntWerewolves == 0.
 	
 werewolves_have_won :-
 	.count(role(werewolf, _), CntWerewolves) &
 	.count(role(_, _), CntPlayers) &
-	.print((CntPlayers-CntWerewolves), " players are still alive.") &
+	/* .print((CntPlayers-CntWerewolves), " players are still alive.") & */
 	(CntPlayers-CntWerewolves) == 0.
 
 /* Initial goals */
