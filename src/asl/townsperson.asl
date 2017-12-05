@@ -68,7 +68,33 @@ living_werewolves(2).
  
 /* Update the beliefs from other players' votes */
 /* TODO(jp): See (1) */
-+voted_to_lynch(Day, Accuser, Accused).
+
+/* When the player is accused of being a werewolf */
++voted_to_lynch(_, Accuser, Accused)
+	: .my_name(Accused)
+	<- /* The accuser becomes more suspect */
+	   ?werewolf(Accuser, Certainty);
+	   UpdatedCertainty = Certainty + 0.1;
+	   .abolish(werewolf(Accuser, _));
+	   +werewolf(Accuser, UpdatedCertainty).
+	   
+/* When the player believes the accused is a townsperson */
++voted_to_lynch(_, Accuser, Accused)
+	: townsperson(Accused, Certainty) & Certainty >= 0.3
+	<- /* The accuser becomes more suspect */
+	   ?werewolf(Accuser, Certainty);
+	   UpdatedCertainty = Certainty + 0.1;
+	   .abolish(werewolf(Accuser, _));
+	   +werewolf(Accuser, UpdatedCertainty).
+	   
+/* When the player believes the accused is a werewolf */
++voted_to_lynch(_, Accuser, Accused)
+	: werewolf(Accused, Certainty) & Certainty >= 0.3
+	<- /* The accuser becomes less suspect */
+	   ?towsperson(Accuser, Certainty);
+	   UpdatedCertainty = Certainty + 0.1;
+	   .abolish(townsperson(Accuser, _));
+	   +townsperson(Accuser, UpdatedCertainty).
 	
 /* Remove eliminated players from database and update beliefs */
 /* TODO(jp): Update the beliefs; see (2) */
@@ -82,6 +108,8 @@ living_werewolves(2).
 	   /* Delete the player from the database */
 	   /* TODO(jp): Abstract this away */
 	   .abolish(player(Player));
+	   .abolish(werewolf(Player, _));
+	   .abolish(townsperson(Player, _));
 	   .abolish(voted_to_lynch(_, Player, _));
 	   /* Players who have tried to kill the dead werewolf become less suspect */
 	   .findall(Accuser, voted_to_lynch(_, Accuser, Player), Accusers);
@@ -101,6 +129,8 @@ living_werewolves(2).
 	<- /* Delete the player from the database */
 	   /* TODO(jp): Abstract this away */
 	   .abolish(player(Player));
+	   .abolish(werewolf(Player, _));
+	   .abolish(townsperson(Player, _));
 	   .abolish(voted_to_lynch(_, Player, _));
 	   /* Players who have tried to kill the dead townsperson become more suspect */
 	   .findall(Accuser, voted_to_lynch(_, Accuser, Player), Accusers);

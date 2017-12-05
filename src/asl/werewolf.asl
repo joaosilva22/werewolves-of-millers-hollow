@@ -8,6 +8,10 @@ alive.
 +!join_game(Coordinator)
 	: .my_name(Me)
 	<- .send(Coordinator, tell, role(werewolf, Me)).
+	
+/*
+ * Game setup
+ */
 
 /* Add other werewolves to beliefs */
 +werewolf(Player)
@@ -16,6 +20,10 @@ alive.
 /* Add other players to beliefs */
 +player(Player)
 	<- .print("I've learned that ", Player, " is playing the game.").
+	
+/*
+ * Game loop
+ */
 	
 /* Wake up during the night */
 +night(Day)
@@ -28,7 +36,6 @@ alive.
 /* Wake up in the morning */
 +day(Day)
 	<- .my_name(Me);
-	   .print(Me, " wakes up.");
 	   .findall(Name, player(Name), Players);
 	   actions.random_player(Players, Player);
 	   .send(game_coordinator, tell, voted_to_lynch(Day, Me, Player));
