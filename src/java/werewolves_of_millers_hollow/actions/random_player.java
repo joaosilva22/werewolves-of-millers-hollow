@@ -1,4 +1,4 @@
-package actions;
+package werewolves_of_millers_hollow.actions;
 
 import java.util.ArrayList;
 import java.util.Random;

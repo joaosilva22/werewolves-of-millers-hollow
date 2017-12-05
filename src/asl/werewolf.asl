@@ -30,14 +30,14 @@ alive.
 	<- .my_name(Me);
 	   .print(Me, " wakes up.");
 	   .findall(Name, player(Name), Players);
-	   actions.random_player(Players, Player);
+	   werewolves_of_millers_hollow.actions.random_player(Players, Player);
 	   .send(game_coordinator, tell, voted_to_eliminate(Day, Me, Player)).
 	   
 /* Wake up in the morning */
 +day(Day)
 	<- .my_name(Me);
 	   .findall(Name, player(Name), Players);
-	   actions.random_player(Players, Player);
+	   werewolves_of_millers_hollow.actions.random_player(Players, Player);
 	   .send(game_coordinator, tell, voted_to_lynch(Day, Me, Player));
 	   /* Tell everyone else who the player is voting for */
 	   .send(Players, tell, voted_to_lynch(Day, Me, Player)).

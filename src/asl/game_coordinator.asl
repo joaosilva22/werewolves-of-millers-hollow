@@ -31,6 +31,7 @@ werewolves_have_won :-
 	(CntPlayers-CntWerewolves) == 0.
 
 /* Initial goals */
+!start_gui.
 !setup_game.
 
 /* Plans */
@@ -41,6 +42,10 @@ werewolves_have_won :-
 /*
  * Game setup
  */
+ 
+/* Start the GUI */
++!start_gui
+	<- werewolves_of_millers_hollow.actions.start_gui.
 
 /* Do the initial setup and start the game */
 +!setup_game
@@ -126,7 +131,7 @@ werewolves_have_won :-
 	: all_werewolves_voted(Day) 
 	<- .print("All werewolves have voted.");
 	   .findall(Vote, voted_to_eliminate(Day, _, Vote), Votes);
-	   actions.count_player_votes(Votes, MostVotedPlayers, MostVotedCnt);
+	   werewolves_of_millers_hollow.actions.count_player_votes(Votes, MostVotedPlayers, MostVotedCnt);
 	   .length(MostVotedPlayers, CntMostVotedPlayers);
 	   if (CntMostVotedPlayers > 1) 
 	   {
@@ -171,7 +176,7 @@ werewolves_have_won :-
 	: everyone_has_voted(Day)
 	<- .print("The town has finished deliberating.");
 	   .findall(Vote, voted_to_lynch(Day, _, Vote), Votes);
-	   actions.count_player_votes(Votes, MostVotedPlayers, MostVotedCnt);
+	   werewolves_of_millers_hollow.actions.count_player_votes(Votes, MostVotedPlayers, MostVotedCnt);
 	   .length(MostVotedPlayers, CntMostVotedPlayers);
 	   if (CntMostVotedPlayers > 1) 
 	   {

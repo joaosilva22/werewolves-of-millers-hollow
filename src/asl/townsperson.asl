@@ -113,7 +113,7 @@ living_werewolves(2).
 	   .abolish(voted_to_lynch(_, Player, _));
 	   /* Players who have tried to kill the dead werewolf become less suspect */
 	   .findall(Accuser, voted_to_lynch(_, Accuser, Player), Accusers);
-	   actions.unique_elements(Accusers, UniqueAccusers);
+	   werewolves_of_millers_hollow.actions.unique_elements(Accusers, UniqueAccusers);
 	   for (.member(X, UniqueAccusers)) {
 	   	   /* Update the certainty factor */
 	   	   ?townsperson(X, Certainty);
@@ -134,7 +134,7 @@ living_werewolves(2).
 	   .abolish(voted_to_lynch(_, Player, _));
 	   /* Players who have tried to kill the dead townsperson become more suspect */
 	   .findall(Accuser, voted_to_lynch(_, Accuser, Player), Accusers);
-	   actions.unique_elements(Accusers, UniqueAccusers);
+	   werewolves_of_millers_hollow.actions.unique_elements(Accusers, UniqueAccusers);
 	   for (.member(X, UniqueAccusers)) {
 	   	   /* Update the certainty factor */
 	   	   ?werewolf(X, Certainty);
