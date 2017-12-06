@@ -142,6 +142,8 @@ werewolves_have_won :-
 	   	   .nth(0, MostVotedPlayers, DeadPlayer);
 	   	   ?role(Role, DeadPlayer);
 	   	   .abolish(role(_, DeadPlayer));
+	   	   /* Update the gui */
+	   	   remove_player(DeadPlayer);
 	   	   !wake_up_town(Day, DeadPlayer, Role);
 	   }.
 	   
@@ -186,6 +188,8 @@ werewolves_have_won :-
 	   	   .nth(0, MostVotedPlayers, DeadPlayer);
 	   	   ?role(Role, DeadPlayer);
 	   	   .abolish(role(_, DeadPlayer));
+	   	   /* Update the gui */
+	   	   remove_player(DeadPlayer);
 	   	   /* Tell others about the death of the player */
 	   	   print_env(DeadPlayer, " was lynched.");
 	   	   print_env("After inspecting the body it was determined that they were a ", Role, ".");
