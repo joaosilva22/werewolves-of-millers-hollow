@@ -101,11 +101,21 @@ The game ends when:
 \end{itemize}
 
 \subsection{Objectives}
-This work has the goal to create the game \textit{Werewolves of Miller’s Hollow} following all the rules of the game, creating the different roles through different types of agents and evaluating their performance to see what agents are the most adequates for each role. 
-\subsection{Expected results and evaluation form}
 
-In this project, your different types of agents (BDI, random and strategic) will be different. BDI agents are expected to be the closest to human behavior since, according to their beliefs, desires and intentions and some negotiations between them, they choose who should be killed, as humans would.
-It is expected that the number of villagers killed wrongly (when it was thought to be werewolves), is higher when using random agents than with BDI agents.  
+The purpose of our work is to create a set of agent architectures that are able to play the game. Different architectures will have different properties; Some will have act completely randomly while other will try to negotiate and argumentate to reach consensus. In the end we will evaluate and compare their performances.
+
+\subsection{Expected results and evaluation form} 
+
+In order to compare the performance of the different architectures of agents we must first define some way of measuring how well they performed in any 
+given game. As such, we propose the following metrics:
+
+\begin{itemize}
+	\item For the townsfolk, the number of innocents that were lynched
+	\item For the werewolves, the amount and duration of games won
+	\item For all the other characters, how effectively they used their special ability
+\end{itemize}
+
+We expect random agents to be the least effective, because all their actions will be taken at random sometimes against their own interests. BDI agents are expected to fare better since they'll atempt cooperation through negotiation in order to take more educated guesses.
 
 \section{Platform/Tool}
 \subsection{JADE}
