@@ -85,7 +85,10 @@ living_werewolves(2).
 	   ?werewolf(Accuser, Certainty);
 	   UpdatedCertainty = Certainty + 0.1;
 	   .abolish(werewolf(Accuser, _));
-	   +werewolf(Accuser, UpdatedCertainty).
+	   +werewolf(Accuser, UpdatedCertainty);
+	   /* Add thought proccess to the gui */
+	   .my_name(Me);
+	   add_player_thought(Me, Accuser, " has voted to lynch ", Accused, " but I think ", Accused, " is a townsperson. ", Accuser, " may be a werewolf.").
 	   
 /* When the player believes the accused is a werewolf */
 +voted_to_lynch(_, Accuser, Accused)
@@ -94,7 +97,10 @@ living_werewolves(2).
 	   ?towsperson(Accuser, Certainty);
 	   UpdatedCertainty = Certainty + 0.1;
 	   .abolish(townsperson(Accuser, _));
-	   +townsperson(Accuser, UpdatedCertainty).
+	   +townsperson(Accuser, UpdatedCertainty);
+	   /* Add thought proccess to the gui */
+	   .my_name(Me);
+	   add_player_thought(Me, Accuser, " has voted to lynch ", Accused, " and I think ", Accused, " is a werewolf. ", Accuser, " may be a townsperson.").
 	
 /* Remove eliminated players from database and update beliefs */
 /* TODO(jp): Update the beliefs; see (2) */
@@ -121,6 +127,11 @@ living_werewolves(2).
 	   	   .abolish(townsperson(X, _));
 	   	   +townsperson(X, UpdatedCertainty);
 	       .print("I'm ", UpdatedCertainty, " sure that ", X, " is a townsperson...");
+	       /* Update the beliefs in the gui */
+	       .my_name(Me);
+	       update_beliefs_in_townsfolk(Me, X, UpdatedCertainty);
+	       /* Add thought proccess to the gui */
+	       add_player_thought(Me, X, " has voted to lynch ", Player, " in the past and ", Player, " was a werewolf. ", X, " may be a townsperson.");
 	   }.
 	   
 /* When another player has been eliminated from the game */
@@ -141,5 +152,10 @@ living_werewolves(2).
 	   	   UpdatedCertainty = Certainty + 0.1;
 	   	   .abolish(werewolf(X, _));
 	   	   +werewolf(X, UpdatedCertainty);
-	       .print("I'm ", UpdatedCertainty, " sure that ", X, " is a werewolf...");	
+	       .print("I'm ", UpdatedCertainty, " sure that ", X, " is a werewolf...");
+	       /* Update the beliefs in the gui */
+	       .my_name(Me);
+	       update_beliefs_in_werewolves(Me, X, UpdatedCertainty);
+	       /* Add thought proccess to the gui */
+	       add_player_thought(Me, X, " has voted to lynch ", Player, " in the past and ", Player, " was a townsperson. ", X, " may be a werewolf.");
 	   }.
