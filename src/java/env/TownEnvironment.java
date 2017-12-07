@@ -74,6 +74,8 @@ public class TownEnvironment extends Environment {
 		}
 		StringBuilder sb = new StringBuilder();
 		sb.append("create_agents(");
+		sb.append(model.getNumberOfRandomTownsfolk());
+		sb.append(",");
 		sb.append(model.getNumberOfTownsfolk());
 		sb.append(",");
 		sb.append(model.getNumberOfRandomWerewolves());

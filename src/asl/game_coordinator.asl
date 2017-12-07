@@ -44,10 +44,10 @@ werewolves_have_won :-
 	   !setup_game.
 	   
 /* Create the players */
-+create_agents(TownsfolkCnt, RandomWerewolvesCnt, WerewolvesCnt)
++create_agents(RandomTownsfolkCnt, TownsfolkCnt, RandomWerewolvesCnt, WerewolvesCnt)
 	: not setup
 	<- .abolish(required_players(_));
-	   .print("TownsfolkCnt=", TownsfolkCnt, " RandomWerewolvesCnt=", RandomWerewolvesCnt, " WerewolvesCnt=", WerewolvesCnt);
+	   .print("RandomTownsfolkCnt=", RandomTownsfolkCnt, " TownsfolkCnt=", TownsfolkCnt, " RandomWerewolvesCnt=", RandomWerewolvesCnt, " WerewolvesCnt=", WerewolvesCnt);
 	   RequiredPlayers = TownsfolkCnt + RandomWerewolvesCnt + WerewolvesCnt;
 	   +required_players(RequiredPlayers);
 	   .print("RequiredPlayers=", RequiredPlayers);
@@ -58,6 +58,10 @@ werewolves_have_won :-
 	   for (.range(I, 1, WerewolvesCnt)) {
 	       .concat("werewolf", I, Name);
 	       .create_agent(Name, "src/asl/werewolf.asl");
+	   };
+	   for (.range(I, 1, RandomTownsfolkCnt)) {
+	   	   .concat("random_townsperson", I, Name);
+	   	   .create_agent(Name, "src/asl/werewolf_random.asl");
 	   };
 	   for (.range(I, 1, TownsfolkCnt)) {
 		   .concat("townsperson", I, Name);
