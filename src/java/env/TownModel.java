@@ -13,6 +13,7 @@ public class TownModel {
 	private int numberOfWerewolves;
 	private int numberOfRandomTownsfolk;
 	private int numberOfRandomWerewolves;
+	private ArrayList<GameStatistics> statistics;
 	
 	public TownModel(TownEnvironment e) {
 		messages = new ArrayList<>();
@@ -20,6 +21,7 @@ public class TownModel {
 		env = e;
 		numberOfTownsfolk = 6;
 		numberOfWerewolves = 2;
+		statistics = new ArrayList<>();
 	}
 	
 	public boolean addMessage(String message) {
@@ -99,6 +101,15 @@ public class TownModel {
 	
 	public void run() {
 		env.run();
+	}
+	
+	public void createGameStatistics() {
+		statistics.add(new GameStatistics());
+	}
+	
+	public GameStatistics getLatestGameStatistics() {
+		if (statistics.isEmpty()) return null;
+		return statistics.get(statistics.size() - 1);
 	}
 	
 	public void clear() {

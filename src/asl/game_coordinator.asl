@@ -143,13 +143,13 @@ werewolves_have_won :-
 +!wake_up_werewolves(Day)
 	: townsfolk_have_won
 	<- print_env("The townsfolk have won in ", Day, " days.");
-	   !reset.
+	   !reset("townsfolk", Day).
 	
 /* Before waking up the werewolves, check if there is any townsfolk left alive */
 +!wake_up_werewolves(Day)
 	: werewolves_have_won
 	<- print_env("The werewolves have won in ", Day, " days.");
-	   !reset.
+	   !reset("werewolves", Day).
 	
 /* Wake up the werewolves */
 +!wake_up_werewolves(Day)
@@ -192,7 +192,7 @@ werewolves_have_won :-
 +!wake_up_town(Day, _, _)
 	: werewolves_have_won
 	<- print_env("The wereolves have won in ", Day, " days.");
-	   !reset.
+	   !reset("werewolves", Day).
 
 /* Wake up the town when somebody was killed during the night */
 +!wake_up_town(Day, Player, Role)
@@ -255,7 +255,7 @@ werewolves_have_won :-
 /*
  * Reset the game
  */
- +!reset
+ +!reset(Winner, Rounds)
 	<- .abolish(required_players(_));
 	   .abolish(role(_, _));
 	   .abolish(voted_to_eliminate(_, _, _));
@@ -268,4 +268,5 @@ werewolves_have_won :-
 	       }	
 	   };
 	   .abolish(setup);
+	   end_game(Winner, Rounds);
 	   !setup_game.
