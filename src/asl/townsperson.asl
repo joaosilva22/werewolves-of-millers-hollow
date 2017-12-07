@@ -82,8 +82,8 @@ living_werewolves(2).
 +voted_to_lynch(_, Accuser, Accused)
 	: townsperson(Accused, Certainty) & Certainty >= 0.3
 	<- /* The accuser becomes more suspect */
-	   ?werewolf(Accuser, Certainty);
-	   UpdatedCertainty = Certainty + 0.1;
+	   ?werewolf(Accuser, OldCertainty);
+	   UpdatedCertainty = OldCertainty + 0.1;
 	   .abolish(werewolf(Accuser, _));
 	   +werewolf(Accuser, UpdatedCertainty);
 	   /* Add thought proccess to the gui */
@@ -94,8 +94,8 @@ living_werewolves(2).
 +voted_to_lynch(_, Accuser, Accused)
 	: werewolf(Accused, Certainty) & Certainty >= 0.3
 	<- /* The accuser becomes less suspect */
-	   ?towsperson(Accuser, Certainty);
-	   UpdatedCertainty = Certainty + 0.1;
+	   ?townsperson(Accuser, OldCertainty);
+	   UpdatedCertainty = OldCertainty + 0.1;
 	   .abolish(townsperson(Accuser, _));
 	   +townsperson(Accuser, UpdatedCertainty);
 	   /* Add thought proccess to the gui */
@@ -106,13 +106,14 @@ living_werewolves(2).
 /* TODO(jp): Update the beliefs; see (2) */
 
 /* When a werewolf has been eliminated from the game */
-+dead(Player, werewolf)
++dead(Day, Period, Player, werewolf)
 	: not .my_name(Player)
 	<- /* Update the number of living werewolves */
 	   ?living_werewolves(Werewolves); 
 	   -+living_werewolves(Werewolves-1);
 	   /* Delete the player from the database */
 	   /* TODO(jp): Abstract this away */
+	   .print(Player, " has died");
 	   .abolish(player(Player));
 	   .abolish(werewolf(Player, _));
 	   .abolish(townsperson(Player, _));
@@ -120,25 +121,26 @@ living_werewolves(2).
 	   /* Players who have tried to kill the dead werewolf become less suspect */
 	   .findall(Accuser, voted_to_lynch(_, Accuser, Player), Accusers);
 	   werewolves_of_millers_hollow.actions.unique_elements(Accusers, UniqueAccusers);
+	   .my_name(Me);
 	   for (.member(X, UniqueAccusers)) {
 	   	   /* Update the certainty factor */
 	   	   ?townsperson(X, Certainty);
 	   	   UpdatedCertainty = Certainty + 0.1;
 	   	   .abolish(townsperson(X, _));
 	   	   +townsperson(X, UpdatedCertainty);
-	       .print("I'm ", UpdatedCertainty, " sure that ", X, " is a townsperson...");
 	       /* Update the beliefs in the gui */
-	       .my_name(Me);
 	       update_beliefs_in_townsfolk(Me, X, UpdatedCertainty);
 	       /* Add thought proccess to the gui */
 	       add_player_thought(Me, X, " has voted to lynch ", Player, " in the past and ", Player, " was a werewolf. ", X, " may be a townsperson.");
-	   }.
+	   };
+	   .send(game_coordinator, tell, ready(Day, Period, Me)).
 	   
 /* When another player has been eliminated from the game */
-+dead(Player, townsperson)
++dead(Day, Period, Player, townsperson)
     : not .my_name(Player)
 	<- /* Delete the player from the database */
 	   /* TODO(jp): Abstract this away */
+	   .print(Player, " has died");
 	   .abolish(player(Player));
 	   .abolish(werewolf(Player, _));
 	   .abolish(townsperson(Player, _));
@@ -146,16 +148,16 @@ living_werewolves(2).
 	   /* Players who have tried to kill the dead townsperson become more suspect */
 	   .findall(Accuser, voted_to_lynch(_, Accuser, Player), Accusers);
 	   werewolves_of_millers_hollow.actions.unique_elements(Accusers, UniqueAccusers);
+	   .my_name(Me);
 	   for (.member(X, UniqueAccusers)) {
 	   	   /* Update the certainty factor */
 	   	   ?werewolf(X, Certainty);
 	   	   UpdatedCertainty = Certainty + 0.1;
 	   	   .abolish(werewolf(X, _));
 	   	   +werewolf(X, UpdatedCertainty);
-	       .print("I'm ", UpdatedCertainty, " sure that ", X, " is a werewolf...");
 	       /* Update the beliefs in the gui */
-	       .my_name(Me);
 	       update_beliefs_in_werewolves(Me, X, UpdatedCertainty);
 	       /* Add thought proccess to the gui */
 	       add_player_thought(Me, X, " has voted to lynch ", Player, " in the past and ", Player, " was a townsperson. ", X, " may be a werewolf.");
-	   }.
+	   };
+	   .send(game_coordinator, tell, ready(Day, Period, Me)).
