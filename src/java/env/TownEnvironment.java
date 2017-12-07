@@ -66,13 +66,25 @@ public class TownEnvironment extends Environment {
 	}
 	
 	public void run() {
+		clearPercepts();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		StringBuilder sb = new StringBuilder();
 		sb.append("create_agents(");
+		sb.append(model.getNumberOfRandomTownsfolk());
+		sb.append(",");
 		sb.append(model.getNumberOfTownsfolk());
+		sb.append(",");
+		sb.append(model.getNumberOfRandomWerewolves());
 		sb.append(",");
 		sb.append(model.getNumberOfWerewolves());
 		sb.append(")");
 		String literal = sb.toString();
+		System.out.println("Restarting...");
+		model.clear();
 		addPercept(Literal.parseLiteral(literal));
 	}
 }

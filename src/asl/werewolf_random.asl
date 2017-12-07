@@ -1,6 +1,3 @@
-/* Initial beliefs */
-alive.
-
 /* Initial goals */
 !join_game(game_coordinator).
 
@@ -43,12 +40,11 @@ alive.
 	   .send(Players, tell, voted_to_lynch(Day, Me, Player)).
 	   
 /* Remove eliminated player from database */
-+dead(Player, Role)
-	: alive & .my_name(Player)
-	<- -alive.
-+dead(Player, werewolf)
-	: alive
-	<- .abolish(werewolf(Player)).
-+dead(Player, _)
-	: alive
-	<- .abolish(player(Player)).
++dead(Day, Period, Player, werewolf)
+	<- .abolish(werewolf(Player));
+	   .my_name(Me);
+	   .send(game_coordinator, tell, ready(Day, Period, Me)).
++dead(Day, Period, Player, _)
+	<- .abolish(player(Player));
+	   .my_name(Me);
+	   .send(game_coordinator, tell, ready(Day, Period, Me)).

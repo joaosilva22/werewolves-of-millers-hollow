@@ -11,6 +11,8 @@ public class TownModel {
 	private TownEnvironment env;
 	private int numberOfTownsfolk;
 	private int numberOfWerewolves;
+	private int numberOfRandomTownsfolk;
+	private int numberOfRandomWerewolves;
 	
 	public TownModel(TownEnvironment e) {
 		messages = new ArrayList<>();
@@ -79,7 +81,29 @@ public class TownModel {
 		return numberOfTownsfolk;
 	}
 	
+	public int getNumberOfRandomTownsfolk() {
+		return numberOfRandomTownsfolk;
+	}
+	
+	public void setNumberOfRandomTownsfolk(int n) {
+		numberOfRandomTownsfolk = n;
+	}
+	
+	public int getNumberOfRandomWerewolves() {
+		return numberOfRandomWerewolves;
+	}
+	
+	public void setNumberOfRandomWerewolves(int n) {
+		numberOfRandomWerewolves = n;
+	}
+	
 	public void run() {
 		env.run();
+	}
+	
+	public void clear() {
+		messages.clear();
+		players.clear();
+		view.clear();
 	}
 }
