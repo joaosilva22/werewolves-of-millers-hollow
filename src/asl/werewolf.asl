@@ -25,7 +25,6 @@ alive.
 +player(Player)
 	<- 	+townsperson(Player, 0.0);
 		.my_name(Me);
-		update_beliefs_in_townsfolk(Me, Player, 0.0);
 		.print("I've learned that ", Player, " is playing the game.").
 	
 /*
@@ -44,6 +43,8 @@ alive.
 /* Wake up in the morning */
 +day(Day)
 	<- .my_name(Me);
+	   .findall(X, townsperson(X, _), Xs);
+	   .print("Xs=", Xs);
 	   .findall(Probability, townsperson(_, Probability), Probabilities);
 	   .max(Probabilities, Prob);
 	   ?townsperson(Player, Prob);
@@ -59,7 +60,8 @@ alive.
 	: my_name(Accused)
 	<- ?townsperson(Accuser, Probability);
 		UpdatedProbability = Probability + 0.1;
-		-+townsperson(Accuser, UpdatedProbability);
+		.abolish(townsperson(Accuser, _));
+		+townsperson(Accuser, UpdatedProbability);
 		/* Add thought proccess to the gui */
 	   .my_name(Me);
 	   update_beliefs_in_townsfolk(Me, Accuser, UpdatedProbability);
@@ -70,13 +72,15 @@ alive.
 	: werewolf(Accused)
 	<- ?townsperson(Accuser, Probability);
 		UpdatedProbability = Probability + 0.2;
-		-+townsperson(Accuser, UpdatedProbability);
+		.abolish(townsperson(Accuser, _));
+		+townsperson(Accuser, UpdatedProbability);
 		/* Add thought proccess to the gui */
 		.my_name(Me);
 	   	update_beliefs_in_townsfolk(Me, Accuser, UpdatedProbability);
 	   	add_player_thought(Me, Accuser, " has voted to lynch me, so it is possible that he knows that I am a werewolf").	
 				   
-/* a townsperson accuse another one */				   
+/* a townsperson accuse another one */	
+/*			   
 +voted_to_lynch(_, Accuser, Accused)
 	: townsperson(Accused,AccusedProb) & townsperson(Accuser,AccuserProb) & AccusedProb > 0 & AccuserProb > 0
 	<- ?townsperson(Accuser, Probability);
@@ -85,12 +89,13 @@ alive.
 		?townsperson(Accused, Prob);
 		NewProbability = Prob - 0.1;
 		-+townsperson(Accused, NewProbability);
-		/* Add thought proccess to the gui */
+		Add thought proccess to the gui
 		.my_name(Me);	
 		update_beliefs_in_townsfolk(Me, Accuser, UpdatedProbability);
 		update_beliefs_in_townsfolk(Me, Accused, NewProbability);
 		add_player_thought(Me, Accuser, " has voted to lynch ", Accused, "so it is possible that he believes that ", Accused ," is a werewolf, so i should let him believe that").			   
-				   
+*/
+			   
 /* Remove eliminated player from database */
 +dead(Day, Period, Player, Role)
 	: alive & .my_name(Player)

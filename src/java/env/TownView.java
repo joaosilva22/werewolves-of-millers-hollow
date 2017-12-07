@@ -93,7 +93,7 @@ public class TownView extends JFrame {
 			        JLabel werewolves = new JLabel("Number of werewolves");
 			        settingsWindow.getContentPane().add(werewolves);
 			        final JSpinner werewolvesCount = new JSpinner();
-			        townsfolkCount.setValue((int)model.getNumberOfWerewolves());
+			        werewolvesCount.setValue((int)model.getNumberOfWerewolves());
 			        settingsWindow.getContentPane().add(werewolvesCount);
 			        
 			        JButton cancel = new JButton("Cancel");
