@@ -61,6 +61,18 @@ public class TownEnvironment extends Environment {
 			String thought = sb.toString().replace("\"", "");
 			result = model.addPlayerThought(name, thought);
 		} break;
+		case "end_game": {
+			String winner = act.getTerm(0).toString();
+			int rounds = Integer.parseInt(act.getTerm(1).toString());
+			GameStatistics stats = model.getLatestGameStatistics();
+			stats.rounds = rounds;
+			if (winner.equals("\"werewolves\"")) {
+				stats.winner = GameStatistics.Team.Werewolves;
+			} else {
+				stats.winner = GameStatistics.Team.Townsfolk;
+			}
+			result = true;
+		} break;
 		}
 		return result;
 	}
@@ -85,6 +97,12 @@ public class TownEnvironment extends Environment {
 		String literal = sb.toString();
 		System.out.println("Restarting...");
 		model.clear();
+		model.createGameStatistics();
+		GameStatistics stats = model.getLatestGameStatistics();
+		stats.random_townsfolk = model.getNumberOfRandomTownsfolk();
+		stats.strategic_townsfolk = model.getNumberOfTownsfolk();
+		stats.random_werewolves = model.getNumberOfRandomWerewolves();
+		stats.strategic_werewolves = model.getNumberOfWerewolves();
 		addPercept(Literal.parseLiteral(literal));
 	}
 }

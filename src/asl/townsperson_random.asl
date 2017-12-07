@@ -49,6 +49,7 @@ living_werewolves(2).
 	   /* Delete the player from the database */
 	   .print(Player, " has died");
 	   .abolish(player(Player));
+	   .my_name(Me);
 	   .send(game_coordinator, tell, ready(Day, Period, Me)).
 	   
 /* When another player has been eliminated from the game */
@@ -57,4 +58,5 @@ living_werewolves(2).
 	<- /* Delete the player from the database */
 	   .print(Player, " has died");
 	   .abolish(player(Player));
+	   .my_name(Me);
 	   .send(game_coordinator, tell, ready(Day, Period, Me)).

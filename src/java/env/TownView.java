@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -120,6 +121,7 @@ public class TownView extends JFrame {
 			        settingsWindow.getContentPane().add(cancel);
 			        
 			        JButton save = new JButton("Save");
+			        settingsWindow.getRootPane().setDefaultButton(save);
 			        save.addActionListener(new ActionListener() {
 						@Override
 						public void actionPerformed(ActionEvent e) {
@@ -137,6 +139,50 @@ public class TownView extends JFrame {
 			}
 		});
 		menu.add(settings);
+		
+		JMenu stats = new JMenu("Stats");
+		stats.setMnemonic(KeyEvent.VK_T);
+		menuBar.add(stats);
+		
+		JMenuItem lastGame = new JMenuItem("Last Game", KeyEvent.VK_L);
+		lastGame.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, KeyEvent.CTRL_DOWN_MASK));
+		lastGame.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				final JFrame statsWindow = new JFrame();
+				statsWindow.setSize(new Dimension(350, 150));
+				statsWindow.setResizable(false);
+		        statsWindow.setTitle("Stats");
+		        statsWindow.setVisible(true);
+		        
+		        JPanel content = new JPanel();
+		        content.setLayout(new GridLayout(6, 2));
+		        statsWindow.setContentPane(content);
+		        
+		        GameStatistics stats = model.getLatestGameStatistics();
+		        
+		        if (stats == null) return;
+		        
+		        content.add(new JLabel("Winner"));
+		        content.add(new JLabel(stats.winner.toString()));
+		        
+		        content.add(new JLabel("Number of Rounds"));
+		        content.add(new JLabel(Integer.toString(stats.rounds)));
+		        
+		        content.add(new JLabel("Random townsfolk"));
+		        content.add(new JLabel(Integer.toString(stats.random_townsfolk)));
+		        
+		        content.add(new JLabel("Strategic townsfolk"));
+		        content.add(new JLabel(Integer.toString(stats.strategic_townsfolk)));
+		        
+		        content.add(new JLabel("Random werewolves"));
+		        content.add(new JLabel(Integer.toString(stats.random_werewolves)));
+		        
+		        content.add(new JLabel("Strategic werewolves"));
+		        content.add(new JLabel(Integer.toString(stats.strategic_werewolves)));
+			}
+		});
+		stats.add(lastGame);
 		
 		/* Left panel */
 		JPanel pnlLeft = new JPanel();
