@@ -7,13 +7,15 @@ public class PlayerData {
 	private HashMap<String, Float> beliefsInTownsfolk;
 	private HashMap<String, Float> beliefsInWerewolves;
 	private String name;
+	private String role;
 	private boolean alive;
 	private ArrayList<String> thoughts;
 	
-	public PlayerData(String n) {
+	public PlayerData(String n, String r) {
 		beliefsInTownsfolk = new HashMap<>();
 		beliefsInWerewolves = new HashMap<>();
 		name = n;
+		role = r;
 		alive = true;
 		thoughts = new ArrayList<>();
 	}
@@ -41,6 +43,10 @@ public class PlayerData {
 	
 	public String getName() {
 		return name;
+	}
+	
+	public String getRole() {
+		return role;
 	}
 	
 	public void setAlive(boolean a) {

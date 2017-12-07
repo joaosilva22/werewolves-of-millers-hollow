@@ -1,4 +1,5 @@
 package env;
+import jason.asSyntax.Literal;
 import jason.asSyntax.Structure;
 import jason.asSyntax.Term;
 import jason.environment.Environment;
@@ -8,8 +9,8 @@ public class TownEnvironment extends Environment {
 	
 	@Override
 	public void init(String[] args) {
-		model = new TownModel();
-		model.setView(new TownView());
+		model = new TownModel(this);
+		model.setView(new TownView(model));
 	}
 
 	@Override
@@ -26,7 +27,8 @@ public class TownEnvironment extends Environment {
 		} break;
 		case "add_player": {
 			String name = act.getTerm(0).toString();
-			result = model.addPlayer(name);
+			String role = act.getTerm(1).toString();
+			result = model.addPlayer(name, role);
 		} break;
 		case "remove_player": {
 			String name = act.getTerm(0).toString();
@@ -61,5 +63,16 @@ public class TownEnvironment extends Environment {
 		} break;
 		}
 		return result;
+	}
+	
+	public void run() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("create_agents(");
+		sb.append(model.getNumberOfTownsfolk());
+		sb.append(",");
+		sb.append(model.getNumberOfWerewolves());
+		sb.append(")");
+		String literal = sb.toString();
+		addPercept(Literal.parseLiteral(literal));
 	}
 }
