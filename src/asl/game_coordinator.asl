@@ -53,7 +53,7 @@ werewolves_have_won :-
 	   .findall([Role, Name], role(Role, Name), Players);
 	   !inform_townsfolk(Players);
 	   !inform_werewolves(Players);
-	   !inform_fortune_teller(Players)
+	  // !inform_fortune_teller(Players)
 	   !start_turn(1).
 +!setup_game
 	: not enough_players
@@ -63,6 +63,7 @@ werewolves_have_won :-
 	<- .print("Game has already begun.").
 	
 /* Tell fortune_teller about the other players */
+/*
 +!inform_fortune_teller([])
 	<- true.
 +!inform_fortune_teller([[_,Player]|T])
@@ -70,6 +71,7 @@ werewolves_have_won :-
 	<- .send(fortune_teller, tell, player(Player));
 	   !inform_fortune_teller(T).
 	
+*/	
 /* Tell townsfolk about the other players */
 +!inform_townsfolk([])
 	<- true.
