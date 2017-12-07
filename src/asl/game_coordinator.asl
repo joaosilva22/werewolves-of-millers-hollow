@@ -50,13 +50,14 @@ werewolves_have_won :-
 	   .print("TownsfolkCnt=", TownsfolkCnt, " WerewolvesCnt=", WerewolvesCnt);
 	   RequiredPlayers = TownsfolkCnt + WerewolvesCnt;
 	   +required_players(RequiredPlayers);
-	   for (.range(I, 1, TownsfolkCnt)) {
-		   .concat("townsperson", I, Name);
-	       .create_agent(Name, "src/asl/townsperson.asl");	
-	   };
+	   .print("RequiredPlayers=", RequiredPlayers);
 	   for (.range(I, 1, WerewolvesCnt)) {
 	       .concat("werewolf", I, Name);
 	       .create_agent(Name, "src/asl/werewolf.asl");
+	   };
+	   for (.range(I, 1, TownsfolkCnt)) {
+		   .concat("townsperson", I, Name);
+	       .create_agent(Name, "src/asl/townsperson.asl");	
 	   }.
 
 /*
@@ -67,12 +68,14 @@ werewolves_have_won :-
 +!setup_game
 	: enough_players & not setup
 	<- +setup
+	   .wait(1000);
 	   ?required_players(MinPlayer);
 	   .count(role(_, _), CntPlayer);
 	   .print("(", CntPlayer, "/", MinPlayer, ") have joined. Starting the game.");
 	   .findall([Role, Name], role(Role, Name), Players);
 	   !inform_townsfolk(Players);
 	   !inform_werewolves(Players);
+	   .wait(1000);
 	  // !inform_fortune_teller(Players)
 	   !start_turn(1).
 +!setup_game
@@ -244,10 +247,12 @@ werewolves_have_won :-
 /*
  * Reset the game
  */
-/*
  +!reset
 	<- .abolish(required_players(_));
 	   .abolish(role(_, _));
+	   .abolish(voted_to_eliminate(_, _, _));
+	   .abolish(voted_to_lynch(_, _, _));
+	   .abolish(ready(_, _, _));
 	   .all_names(Agents);
 	   for (.member(X, Agents)) {
 	       if (not X == game_coordinator) {
@@ -256,5 +261,3 @@ werewolves_have_won :-
 	   };
 	   .abolish(setup);
 	   !setup_game.
-*/
-+!reset.

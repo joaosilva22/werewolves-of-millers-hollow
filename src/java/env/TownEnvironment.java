@@ -66,6 +66,12 @@ public class TownEnvironment extends Environment {
 	}
 	
 	public void run() {
+		clearPercepts();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		StringBuilder sb = new StringBuilder();
 		sb.append("create_agents(");
 		sb.append(model.getNumberOfTownsfolk());
@@ -73,6 +79,8 @@ public class TownEnvironment extends Environment {
 		sb.append(model.getNumberOfWerewolves());
 		sb.append(")");
 		String literal = sb.toString();
+		System.out.println("Restarting...");
+		model.clear();
 		addPercept(Literal.parseLiteral(literal));
 	}
 }

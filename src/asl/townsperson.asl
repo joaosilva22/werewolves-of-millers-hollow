@@ -72,7 +72,9 @@ living_werewolves(2).
 /* When the player is accused of being a werewolf */
 +voted_to_lynch(_, Accuser, Accused)
 	: .my_name(Accused)
-	<- /* The accuser becomes more suspect */
+	<- .findall(X, werewolf(X, _), Xs);
+	   .print("I'me being accused of being a werewolf by ", Accuser, " Xs=", Xs);
+	   /* The accuser becomes more suspect */
 	   ?werewolf(Accuser, Certainty);
 	   UpdatedCertainty = Certainty + 0.1;
 	   .abolish(werewolf(Accuser, _));
@@ -104,6 +106,9 @@ living_werewolves(2).
 	
 /* Remove eliminated players from database and update beliefs */
 /* TODO(jp): Update the beliefs; see (2) */
++dead(Day, Period, Player, Role)
+	: .my_name(Player)
+	<- .print("I'm ded").
 
 /* When a werewolf has been eliminated from the game */
 +dead(Day, Period, Player, werewolf)

@@ -81,16 +81,28 @@ public class TownView extends JFrame {
 			        settingsWindow.setVisible(true);
 			        
 			        JPanel content = new JPanel();
-			        content.setLayout(new GridLayout(3, 2));
-			        settingsWindow.setContentPane(content);			       
+			        content.setLayout(new GridLayout(5, 2));
+			        settingsWindow.setContentPane(content);
+			        
+			        JLabel randomTownsfolk = new JLabel("Random townsfolk");
+			        settingsWindow.getContentPane().add(randomTownsfolk);
+			        final JSpinner randomTownsfolkCount = new JSpinner();
+			        randomTownsfolkCount.setValue((int)model.getNumberOfRandomTownsfolk());
+			        settingsWindow.getContentPane().add(randomTownsfolkCount);
 
-			        JLabel townsfolk = new JLabel("Number of townsfolk");
+			        JLabel townsfolk = new JLabel("Strategic townsfolk");
 			        settingsWindow.getContentPane().add(townsfolk);
 			        final JSpinner townsfolkCount = new JSpinner();
 			        townsfolkCount.setValue((int)model.getNumberOfTownsfolk());
 			        settingsWindow.getContentPane().add(townsfolkCount);
 			        
-			        JLabel werewolves = new JLabel("Number of werewolves");
+			        JLabel randomWerewolves = new JLabel("Random werewolves");
+			        settingsWindow.getContentPane().add(randomWerewolves);
+			        final JSpinner randomWerewolvesCount = new JSpinner();
+			        randomWerewolvesCount.setValue((int)model.getNumberOfRandomWerewolves());
+			        settingsWindow.getContentPane().add(randomWerewolvesCount);
+			        
+			        JLabel werewolves = new JLabel("Strategic werewolves");
 			        settingsWindow.getContentPane().add(werewolves);
 			        final JSpinner werewolvesCount = new JSpinner();
 			        werewolvesCount.setValue((int)model.getNumberOfWerewolves());
@@ -112,7 +124,9 @@ public class TownView extends JFrame {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							if (e.getActionCommand().equals("Save")) {
+								model.setNumberOfRandomTownsfolk((int)randomTownsfolkCount.getValue());
 								model.setNumberOfTownsfolk((int)(townsfolkCount.getValue()));
+								model.setNumberOfRandomWerewolves((int)randomWerewolvesCount.getValue());
 								model.setNumberOfWerewolves((int)(werewolvesCount.getValue()));
 								settingsWindow.dispatchEvent(new WindowEvent(settingsWindow, WindowEvent.WINDOW_CLOSING));
 							}
@@ -265,5 +279,12 @@ public class TownView extends JFrame {
 			}
 		}
 		repaint();
+	}
+	
+	public void clear() {
+		textArea.setText("");
+		taPlayerList.setText("");
+		pnlBeliefCards.removeAll();
+		cbBeliefCards.removeAllItems();
 	}
 }
