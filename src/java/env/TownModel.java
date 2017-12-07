@@ -16,8 +16,8 @@ public class TownModel {
 		messages = new ArrayList<>();
 		players = Collections.synchronizedList(new ArrayList<PlayerData>());
 		env = e;
-		numberOfTownsfolk = 0;
-		numberOfWerewolves = 0;
+		numberOfTownsfolk = 6;
+		numberOfWerewolves = 2;
 	}
 	
 	public boolean addMessage(String message) {

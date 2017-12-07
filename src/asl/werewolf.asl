@@ -97,12 +97,14 @@ alive.
 	<- -alive.
 +dead(Day, Period, Player, werewolf)
 	: alive
-	<- .abolish(werewolf(Player));
+	<- .print(Player, " has died.");
+	   .abolish(werewolf(Player));
 	   .my_name(Me);
 	   .send(game_coordinator, tell, ready(Day, Period, Me)).
 +dead(Day, Period, Player, townsperson)
 	: alive
-	<- .abolish(townsperson(Player, _));
+	<- .print(Player, " has died.");
+	   .abolish(townsperson(Player, _));
 	   .abolish(player(Player));
 	   .my_name(Me);
 	   .send(game_coordinator, tell, ready(Day, Period, Me)).
