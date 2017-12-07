@@ -106,7 +106,7 @@ living_werewolves(2).
 /* TODO(jp): Update the beliefs; see (2) */
 
 /* When a werewolf has been eliminated from the game */
-+dead(Player, werewolf)
++dead(Day, Period, Player, werewolf)
 	: not .my_name(Player)
 	<- /* Update the number of living werewolves */
 	   ?living_werewolves(Werewolves); 
@@ -121,6 +121,7 @@ living_werewolves(2).
 	   /* Players who have tried to kill the dead werewolf become less suspect */
 	   .findall(Accuser, voted_to_lynch(_, Accuser, Player), Accusers);
 	   werewolves_of_millers_hollow.actions.unique_elements(Accusers, UniqueAccusers);
+	   .my_name(Me);
 	   for (.member(X, UniqueAccusers)) {
 	   	   /* Update the certainty factor */
 	   	   ?townsperson(X, Certainty);
@@ -128,15 +129,14 @@ living_werewolves(2).
 	   	   .abolish(townsperson(X, _));
 	   	   +townsperson(X, UpdatedCertainty);
 	       /* Update the beliefs in the gui */
-	       .my_name(Me);
 	       update_beliefs_in_townsfolk(Me, X, UpdatedCertainty);
 	       /* Add thought proccess to the gui */
 	       add_player_thought(Me, X, " has voted to lynch ", Player, " in the past and ", Player, " was a werewolf. ", X, " may be a townsperson.");
 	   };
-	   .send(game_coordinator, tell, ready_to_sleep(Me)).
+	   .send(game_coordinator, tell, ready(Day, Period, Me)).
 	   
 /* When another player has been eliminated from the game */
-+dead(Player, townsperson)
++dead(Day, Period, Player, townsperson)
     : not .my_name(Player)
 	<- /* Delete the player from the database */
 	   /* TODO(jp): Abstract this away */
@@ -148,6 +148,7 @@ living_werewolves(2).
 	   /* Players who have tried to kill the dead townsperson become more suspect */
 	   .findall(Accuser, voted_to_lynch(_, Accuser, Player), Accusers);
 	   werewolves_of_millers_hollow.actions.unique_elements(Accusers, UniqueAccusers);
+	   .my_name(Me);
 	   for (.member(X, UniqueAccusers)) {
 	   	   /* Update the certainty factor */
 	   	   ?werewolf(X, Certainty);
@@ -155,9 +156,8 @@ living_werewolves(2).
 	   	   .abolish(werewolf(X, _));
 	   	   +werewolf(X, UpdatedCertainty);
 	       /* Update the beliefs in the gui */
-	       .my_name(Me);
 	       update_beliefs_in_werewolves(Me, X, UpdatedCertainty);
 	       /* Add thought proccess to the gui */
 	       add_player_thought(Me, X, " has voted to lynch ", Player, " in the past and ", Player, " was a townsperson. ", X, " may be a werewolf.");
 	   };
-	   .send(game_coordinator, tell, ready_to_sleep(Me)).
+	   .send(game_coordinator, tell, ready(Day, Period, Me)).

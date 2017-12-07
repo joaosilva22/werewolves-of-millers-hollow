@@ -16,9 +16,11 @@ everyone_has_voted(Day) :-
 	.count(voted_to_lynch(Day, _, _), CntVotes) &
 	CntPlayers == CntVotes.
 	
-everyone_ready_to_sleep :-
+everyone_ready(Day, Period) :-
 	.count(role(_, _), CntPlayers) &
-	.count(ready_to_sleep(_), CntReadyToSleep) &
+	.count(ready(Day, Period, _), CntReadyToSleep) &
+	.findall(NicePerson, ready(Day, Period, NicePerson), NicePeople) &
+	.print("Day=", Day, " Period=", Period, " CntPlayers=", CntPlayers, " CntReadyToSleep=", CntReadyToSleep, " NicePeople=", NicePeople) &
 	CntPlayers == CntReadyToSleep.
 	
 townsfolk_have_won :-
@@ -189,9 +191,7 @@ werewolves_have_won :-
 	   print_env("Upon further inspection of the body, it was discovered that they were a ", Role, ".");
 	   /* Tell others about the death of the player */
 	   .findall(Other, role(_, Other), Others);
-	   .send(Others, tell, dead(Player, Role));
-	   /* Wake everyone up */
-	   .send(Others, tell, day(Day)).
+	   .send(Others, tell, dead(Day, night, Player, Role)).
 	   
 /* When everyone in the town has voted, someone is lynched */
 +voted_to_lynch(Day, Accuser, Player)
@@ -204,6 +204,8 @@ werewolves_have_won :-
 	   {
 	   	   /* The town could not reach an agreement, so nobody dies */
 	       print_env("The town could not reach an agreement, so nobody was lynched.");
+	       print_env("The town goes to sleep, hoping for the best.");
+	       !start_turn(Day + 1);
 	   } 
 	   else 
 	   {
@@ -217,17 +219,20 @@ werewolves_have_won :-
 	   	   print_env(DeadPlayer, " was lynched.");
 	   	   print_env("After inspecting the body it was determined that they were a ", Role, ".");
 	   	   .findall(Other, role(_, Other), Others);
-	   	   .send(Others, tell, dead(DeadPlayer, Role));
+	   	   .send(Others, tell, dead(Day, day, DeadPlayer, Role));
 	   }.
-	   /* Send the town to sleep */
-	   /* print_env("The town goes to sleep, hoping for the best.") */
-	   /* !start_turn(Day + 1). */
 	   
-/* When all the players have finished updating their beliefs, send the town to sleep */
-+ready_to_sleep(_)
-	: everyone_ready_to_sleep
-	<- .abolish(ready_to_sleep(_));
-	   print_env("The town goes to sleep, hoping fot the best.");
+/* When all the players have finished updating their beliefs after someone was killed by werewolves  */
++ready(Day, night, _)
+	: everyone_ready(Day, night)
+	<- /* Wake everyone up */
+	   .findall(Other, role(_, Other), Others);
+	   .send(Others, tell, day(Day)).
+
+/* When all the players have finished updating their beliefs after someone was lynched */
++ready(Day, day, _)
+	: everyone_ready(Day, day)
+	<- print_env("The town goes to sleep, hoping for the best.");
 	   !start_turn(Day + 1).
 	   
 /* Tell to the fortune_teller the true personality of a Player */
@@ -239,7 +244,8 @@ werewolves_have_won :-
 /*
  * Reset the game
  */
-+!reset
+/*
+ +!reset
 	<- .abolish(required_players(_));
 	   .abolish(role(_, _));
 	   .all_names(Agents);
@@ -250,3 +256,5 @@ werewolves_have_won :-
 	   };
 	   .abolish(setup);
 	   !setup_game.
+*/
++!reset.

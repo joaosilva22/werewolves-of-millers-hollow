@@ -204,7 +204,7 @@ public class TownView extends JFrame {
 				pnlOuter.add(pnlBelief, playerData.getName());
 				
 				JPanel pnlLeft = new JPanel(new BorderLayout());
-				pnlBelief.add(pnlLeft);
+				pnlBelief.add(new JScrollPane(pnlLeft));
 				
 				JLabel lblTownsfolk = new JLabel("Townsfolk");
 				pnlLeft.add(lblTownsfolk, BorderLayout.PAGE_START);
@@ -214,11 +214,10 @@ public class TownView extends JFrame {
 				
 				for (Map.Entry<String, Float> beliefs : playerData.getBeliefsInTownsfolk().entrySet()) {
 					taTownsfolk.append(beliefs.getKey() + ": " + beliefs.getValue() + "\n");
-					
 				}
 				
 				JPanel pnlRight = new JPanel(new BorderLayout());
-				pnlBelief.add(pnlRight);
+				pnlBelief.add(new JScrollPane(pnlRight));
 				
 				JLabel lblWerewolves = new JLabel("Werewolves");
 				pnlRight.add(lblWerewolves, BorderLayout.PAGE_START);

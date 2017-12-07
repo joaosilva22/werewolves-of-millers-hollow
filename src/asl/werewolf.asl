@@ -52,7 +52,6 @@ alive.
 	   .findall(Name, player(Name), Players);
 	   .send(Players, tell, voted_to_lynch(Day, Me, Player)).
 	   
-	   
 /* Update probabilities of eliminate a werewolf*/	
     
 /* I am being accused  */    
@@ -93,13 +92,17 @@ alive.
 		add_player_thought(Me, Accuser, " has voted to lynch ", Accused, "so it is possible that he believes that ", Accused ," is a werewolf, so i should let him believe that").			   
 				   
 /* Remove eliminated player from database */
-+dead(Player, Role)
++dead(Day, Period, Player, Role)
 	: alive & .my_name(Player)
 	<- -alive.
-+dead(Player, werewolf)
++dead(Day, Period, Player, werewolf)
 	: alive
-	<- .abolish(werewolf(Player)).
-+dead(Player, townsperson)
+	<- .abolish(werewolf(Player));
+	   .my_name(Me);
+	   .send(game_coordinator, tell, ready(Day, Period, Me)).
++dead(Day, Period, Player, townsperson)
 	: alive
 	<- .abolish(townsperson(Player, _));
-	   .abolish(player(Player)).
+	   .abolish(player(Player));
+	   .my_name(Me);
+	   .send(game_coordinator, tell, ready(Day, Period, Me)).
