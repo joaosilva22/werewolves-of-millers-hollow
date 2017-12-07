@@ -76,6 +76,8 @@ public class TownEnvironment extends Environment {
 		sb.append("create_agents(");
 		sb.append(model.getNumberOfTownsfolk());
 		sb.append(",");
+		sb.append(model.getNumberOfRandomWerewolves());
+		sb.append(",");
 		sb.append(model.getNumberOfWerewolves());
 		sb.append(")");
 		String literal = sb.toString();
