@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -120,6 +121,7 @@ public class TownView extends JFrame {
 			        settingsWindow.getContentPane().add(cancel);
 			        
 			        JButton save = new JButton("Save");
+			        settingsWindow.getRootPane().setDefaultButton(save);
 			        save.addActionListener(new ActionListener() {
 						@Override
 						public void actionPerformed(ActionEvent e) {

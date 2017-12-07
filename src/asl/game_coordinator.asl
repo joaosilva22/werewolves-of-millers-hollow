@@ -61,7 +61,7 @@ werewolves_have_won :-
 	   };
 	   for (.range(I, 1, RandomTownsfolkCnt)) {
 	   	   .concat("random_townsperson", I, Name);
-	   	   .create_agent(Name, "src/asl/werewolf_random.asl");
+	   	   .create_agent(Name, "src/asl/townsperson_random.asl");
 	   };
 	   for (.range(I, 1, TownsfolkCnt)) {
 		   .concat("townsperson", I, Name);
