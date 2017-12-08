@@ -108,9 +108,13 @@ public class TownEnvironment extends Environment {
 		sb.append(",");
 		sb.append(model.getNumberOfTownsfolk());
 		sb.append(",");
+		sb.append(model.getNumberOfNegotiatorTownsfolk());
+		sb.append(",");
 		sb.append(model.getNumberOfRandomWerewolves());
 		sb.append(",");
 		sb.append(model.getNumberOfWerewolves());
+		sb.append(",");
+		sb.append(model.getNumberOfNegotiatorWerewolves());
 		sb.append(")");
 		String literal = sb.toString();
 		System.out.println("Restarting...");
@@ -119,8 +123,10 @@ public class TownEnvironment extends Environment {
 		GameStatistics stats = model.getLatestGameStatistics();
 		stats.random_townsfolk = model.getNumberOfRandomTownsfolk();
 		stats.strategic_townsfolk = model.getNumberOfTownsfolk();
+		stats.negotiator_townsfolk = model.getNumberOfNegotiatorTownsfolk();
 		stats.random_werewolves = model.getNumberOfRandomWerewolves();
 		stats.strategic_werewolves = model.getNumberOfWerewolves();
+		stats.negotiator_werewolves = model.getNumberOfNegotiatorWerewolves();
 		addPercept(Literal.parseLiteral(literal));
 	}
 }

@@ -22,6 +22,8 @@ public class TownModel {
 	private int numberOfWerewolves;
 	private int numberOfRandomTownsfolk;
 	private int numberOfRandomWerewolves;
+	private int numberOfNegotiatorTownsfolk;
+	private int numberOfNegotiatorWerewolves;
 	private ArrayList<GameStatistics> statistics;
 	private int gamesToPlay;
 	
@@ -29,8 +31,10 @@ public class TownModel {
 		messages = new ArrayList<>();
 		players = Collections.synchronizedList(new ArrayList<PlayerData>());
 		env = e;
-		numberOfTownsfolk = 6;
-		numberOfWerewolves = 2;
+		numberOfTownsfolk = 0;
+		numberOfWerewolves = 0;
+		numberOfNegotiatorTownsfolk = 6;
+		numberOfNegotiatorWerewolves = 2;
 		statistics = new ArrayList<>();
 		gamesToPlay = 0;
 	}
@@ -193,10 +197,10 @@ public class TownModel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		String column_names= "Winner\tRounds\tRandom_townsfolk\tStrategic_townsfolk\tRandom_werewolves\tStrategic_werewolves";
+		String column_names= "Winner\tRounds\tRandom_townsfolk\tStrategic_townsfolk\tNegotiator_townsfolk\tRandom_werewolves\tStrategic_werewolves\tNegotiator_werewolves";
 		writer.println(column_names);
 		for (GameStatistics stat : statistics) {
-			String row_values = stat.winner +"\t"+ stat.rounds +"\t"+ stat.random_townsfolk +"\t"+ stat.strategic_townsfolk +"\t"+ stat.random_werewolves +"\t"+ stat.strategic_werewolves;
+			String row_values = stat.winner +"\t"+ stat.rounds +"\t"+ stat.random_townsfolk +"\t"+ stat.strategic_townsfolk + "\t" + stat.negotiator_townsfolk + "\t"+ stat.random_werewolves +"\t"+ stat.strategic_werewolves + "\t" + stat.negotiator_werewolves;
 			writer.println(row_values);
 		}
 		writer.close();
@@ -214,5 +218,21 @@ public class TownModel {
 	
 	public int getGamesToPlay() {
 		return gamesToPlay;
+	}
+	
+	public int getNumberOfNegotiatorTownsfolk() {
+		return numberOfNegotiatorTownsfolk;
+	}
+
+	public void setNumberOfNegotiatorTownsfolk(int numberOfNegotiatorTownsfolk) {
+		this.numberOfNegotiatorTownsfolk = numberOfNegotiatorTownsfolk;
+	}
+
+	public int getNumberOfNegotiatorWerewolves() {
+		return numberOfNegotiatorWerewolves;
+	}
+
+	public void setNumberOfNegotiatorWerewolves(int numberOfNegotiatorWerewolves) {
+		this.numberOfNegotiatorWerewolves = numberOfNegotiatorWerewolves;
 	}
 }

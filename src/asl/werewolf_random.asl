@@ -37,7 +37,12 @@
 	   werewolves_of_millers_hollow.actions.random_player(Players, Player);
 	   .send(game_coordinator, tell, voted_to_lynch(Day, Me, Player));
 	   /* Tell everyone else who the player is voting for */
-	   .send(Players, tell, voted_to_lynch(Day, Me, Player)).
+	   .send(Players, tell, voted_to_lynch(Day, Me, Player));
+	   /* Necessary to interact with negotiating agents */
+	   .findall(Name, player(Name), Players);
+	   .send(Players, tell, vote_for(Day, Me, Player, -1));
+	   .findall(Werewolf, werewolf(Werewolf), Werewolves);
+	   .send(Werewolves, tell, vote_for(Day, Me, Player, -1)).
 	   
 /* Remove eliminated player from database */
 +dead(Day, Period, Player, werewolf)
