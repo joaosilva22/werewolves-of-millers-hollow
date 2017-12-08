@@ -27,6 +27,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -76,13 +77,13 @@ public class TownView extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				if (arg0.getActionCommand().equals("Settings")) {
 					final JFrame settingsWindow = new JFrame();
-					settingsWindow.setSize(new Dimension(350, 150));
+					settingsWindow.setSize(new Dimension(350, 200));
 					settingsWindow.setResizable(false);
 			        settingsWindow.setTitle("Settings");
 			        settingsWindow.setVisible(true);
 			        
 			        JPanel content = new JPanel();
-			        content.setLayout(new GridLayout(5, 2));
+			        content.setLayout(new GridLayout(6, 2));
 			        settingsWindow.setContentPane(content);
 			        
 			        JLabel randomTownsfolk = new JLabel("Random townsfolk");
@@ -109,6 +110,12 @@ public class TownView extends JFrame {
 			        werewolvesCount.setValue((int)model.getNumberOfWerewolves());
 			        settingsWindow.getContentPane().add(werewolvesCount);
 			        
+			        JLabel numberOfGames = new JLabel("Number of games");
+			        settingsWindow.getContentPane().add(numberOfGames);
+			        final JSpinner numberOfGamesCount = new JSpinner();
+			        numberOfGamesCount.setValue((int)model.getGamesToPlay());
+			        settingsWindow.getContentPane().add(numberOfGamesCount);
+			        
 			        JButton cancel = new JButton("Cancel");
 			        cancel.addActionListener(new ActionListener() {
 						@Override
@@ -130,6 +137,7 @@ public class TownView extends JFrame {
 								model.setNumberOfTownsfolk((int)(townsfolkCount.getValue()));
 								model.setNumberOfRandomWerewolves((int)randomWerewolvesCount.getValue());
 								model.setNumberOfWerewolves((int)(werewolvesCount.getValue()));
+								model.setGamesToPlay((int)numberOfGamesCount.getValue());
 								settingsWindow.dispatchEvent(new WindowEvent(settingsWindow, WindowEvent.WINDOW_CLOSING));
 							}
 						}
@@ -183,6 +191,30 @@ public class TownView extends JFrame {
 			}
 		});
 		stats.add(lastGame);
+		
+		JMenuItem export = new JMenuItem("Export Session", KeyEvent.VK_E);
+		export.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
+		export.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (arg0.getActionCommand().equals("Export Session")) {
+					String path = model.writeStats();
+					JOptionPane.showMessageDialog(null, "Statistics exported to " + path);
+				}
+			}
+		});
+		stats.add(export);
+		
+		JMenuItem newSession = new JMenuItem("New Session", KeyEvent.VK_N);
+		newSession.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
+		newSession.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				model.newSession();
+				JOptionPane.showMessageDialog(null, "Started new session");
+			}
+		});
+		stats.add(newSession);
 		
 		/* Left panel */
 		JPanel pnlLeft = new JPanel();

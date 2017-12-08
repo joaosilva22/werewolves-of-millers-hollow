@@ -8,7 +8,10 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.List;
 
 import jason.asSyntax.Literal;
 import jason.asSyntax.Structure;
@@ -82,8 +85,11 @@ public class TownEnvironment extends Environment {
 			} else {
 				stats.winner = GameStatistics.Team.Townsfolk;
 			}
-			writeStats(stats);
 			result = true;
+			model.setGamesToPlay(model.getGamesToPlay() - 1);
+			if (model.getGamesToPlay() > 0) {
+				run();
+			}
 		} break;
 		}
 		return result;
@@ -116,45 +122,5 @@ public class TownEnvironment extends Environment {
 		stats.random_werewolves = model.getNumberOfRandomWerewolves();
 		stats.strategic_werewolves = model.getNumberOfWerewolves();
 		addPercept(Literal.parseLiteral(literal));
-	}
-	public void writeStats(GameStatistics stats) {
-		//Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-		String Dir = "src/werewolves_of_miller_hollow.xls";
-		
-		File file = new File(Dir);
-		if(file.exists())
-		{
-			Writer output = null;
-			try {
-				output = new BufferedWriter(new FileWriter(Dir, true));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			String row_values = stats.winner +"\t"+ stats.rounds +"\t"+ stats.random_townsfolk +"\t"+ stats.strategic_townsfolk +"\t"+ stats.random_werewolves +"\t"+ stats.strategic_werewolves; 
-			try {
-				output.append(row_values);
-				output.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		}
-		else
-		{
-			PrintWriter writer = null;
-			try {
-				writer = new PrintWriter(file);
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			String column_names= "Winner\tRounds\tRandom_townsfolk\tStrategic_townsfolk\tRandom_werewolves\tStrategic_werewolves";
-			writer.println(column_names);
-			String row_values = stats.winner +"\t"+ stats.rounds +"\t"+ stats.random_townsfolk +"\t"+ stats.strategic_townsfolk +"\t"+ stats.random_werewolves +"\t"+ stats.strategic_werewolves; 
-			writer.println(row_values);
-			writer.close();
-		}
 	}
 }
