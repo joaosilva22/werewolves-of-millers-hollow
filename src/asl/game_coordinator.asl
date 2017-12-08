@@ -44,11 +44,11 @@ werewolves_have_won :-
 	   !setup_game.
 	   
 /* Create the players */
-+create_agents(RandomTownsfolkCnt, TownsfolkCnt, RandomWerewolvesCnt, WerewolvesCnt)
++create_agents(RandomTownsfolkCnt, TownsfolkCnt, NegotiatorTownsfolkCnt, RandomWerewolvesCnt, WerewolvesCnt, NegotiatorWerewolvesCnt)
 	: not setup
 	<- .abolish(required_players(_));
 	   .print("RandomTownsfolkCnt=", RandomTownsfolkCnt, " TownsfolkCnt=", TownsfolkCnt, " RandomWerewolvesCnt=", RandomWerewolvesCnt, " WerewolvesCnt=", WerewolvesCnt);
-	   RequiredPlayers = TownsfolkCnt + RandomWerewolvesCnt + WerewolvesCnt;
+	   RequiredPlayers = RandomTownsfolkCnt + TownsfolkCnt + NegotiatorTownsfolkCnt + RandomWerewolvesCnt + WerewolvesCnt + NegotiatorWerewolvesCnt;
 	   +required_players(RequiredPlayers);
 	   .print("RequiredPlayers=", RequiredPlayers);
 	   for (.range(I, 1, RandomWerewolvesCnt)) {
@@ -59,6 +59,10 @@ werewolves_have_won :-
 	       .concat("werewolf", I, Name);
 	       .create_agent(Name, "src/asl/werewolf_strategic.asl");
 	   };
+	   for (.range(I, 1, NegotiatorWerewolvesCnt)) {
+	       .concat("negotiator_werewolf", I, Name);
+	       .create_agent(Name, "src/asl/werewolf_negotiator.asl");	
+	   };
 	   for (.range(I, 1, RandomTownsfolkCnt)) {
 	   	   .concat("random_townsperson", I, Name);
 	   	   .create_agent(Name, "src/asl/townsperson_random.asl");
@@ -66,6 +70,10 @@ werewolves_have_won :-
 	   for (.range(I, 1, TownsfolkCnt)) {
 		   .concat("townsperson", I, Name);
 	       .create_agent(Name, "src/asl/townsperson_strategic.asl");	
+	   };
+	   for (.range(I, 1, NegotiatorTownsfolkCnt)) {
+	   	   .concat("negotiator_townsperson", I, Name);
+	   	   .create_agent(Name, "src/asl/townsperson_negotiator.asl");
 	   }.
 
 /*

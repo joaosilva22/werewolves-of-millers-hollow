@@ -17,7 +17,9 @@ public class GameStatistics {
 	
 	public int random_townsfolk;
 	public int strategic_townsfolk;
+	public int negotiator_townsfolk;
 	
 	public int random_werewolves;
 	public int strategic_werewolves;
+	public int negotiator_werewolves;
 }
