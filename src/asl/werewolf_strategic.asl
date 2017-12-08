@@ -51,7 +51,12 @@ alive.
 	   .send(game_coordinator, tell, voted_to_lynch(Day, Me, Player));
 	   /* Tell everyone else who the player is voting for */
 	   .findall(Name, player(Name), Players);
-	   .send(Players, tell, voted_to_lynch(Day, Me, Player)).
+	   .send(Players, tell, voted_to_lynch(Day, Me, Player));
+	   /* Necessary to interact with negotiating agents */
+	   .findall(Name, player(Name), Players);
+	   .send(Players, tell, vote_for(Day, Me, Player, -1));
+	   .findall(Werewolf, werewolf(Werewolf), Werewolves);
+	   .send(Werewolves, tell, vote_for(Day, Me, Player, -1)).
 	   
 /* Update probabilities of eliminate a werewolf*/	
     

@@ -22,9 +22,7 @@ public class select_max_or_random extends DefaultInternalAction {
 			String split[] = term.toString().replace("[", "").replace("]", "").split(",");
 			String name = split[0];
 			float val = Float.parseFloat(split[1]);
-			System.out.println(val + " - " + max + " - " + name);
 			if (val > max) {
-				System.out.println("Am here");
 				choices.clear();
 				choices.add(name);
 				max = val;

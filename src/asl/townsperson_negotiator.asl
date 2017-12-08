@@ -218,6 +218,11 @@ finished_negotiations(Day) :-
 	   Utility = MaxCertainty;
 	   +utility(Day, appeal_to_authority, Me, Player, Utility).
 	   
+/* Stub for non-negotiating agents */
++vote_for(Day, Accuser, Accused, -1)
+	<- +utility(Day, stub, Accuser, Accused, -100.0);
+	   !decide(Day).
+	   
 /* When receiving a request to vote for someone */
 +vote_for(Day, Accuser, Accused, AccuserCertainty)
 	: /* If the player is not the accuser or being accused */
