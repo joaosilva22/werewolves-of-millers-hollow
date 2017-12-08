@@ -27,6 +27,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -183,6 +184,30 @@ public class TownView extends JFrame {
 			}
 		});
 		stats.add(lastGame);
+		
+		JMenuItem export = new JMenuItem("Export Session", KeyEvent.VK_E);
+		export.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
+		export.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (arg0.getActionCommand().equals("Export Session")) {
+					String path = model.writeStats();
+					JOptionPane.showMessageDialog(null, "Statistics exported to " + path);
+				}
+			}
+		});
+		stats.add(export);
+		
+		JMenuItem newSession = new JMenuItem("New Session", KeyEvent.VK_N);
+		newSession.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
+		newSession.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				model.newSession();
+				JOptionPane.showMessageDialog(null, "Started new session");
+			}
+		});
+		stats.add(newSession);
 		
 		/* Left panel */
 		JPanel pnlLeft = new JPanel();
