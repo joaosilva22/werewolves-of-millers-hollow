@@ -205,12 +205,12 @@ finished_negotiations(Day) :-
 	
 /* Start an appeal to authority */ 
 +!appeal_to_authority(Day)
-	<- .print("Dealin' & Appealin'");
-	   .my_name(Me);
+	<- .my_name(Me);
 	   /* Select the player that is most likely a werewolf */
-	   .findall(Certainty, werewolf(_, Certainty), Certainties);
-	   .max(Certainties, MaxCertainty);
-	   ?werewolf(Player, MaxCertainty);
+	   /* TODO(jp): Introduce some randomness if there are multiple possible choices */
+	   .findall([Werewolf, Certainty], werewolf(Werewolf, Certainty), Certainties);
+	   lib.select_max_or_random(Certainties, Player);
+	   ?townsperson(Player, MaxCertainty);
 	   /* Ask other players to vote for someone */
 	   .findall(Name, player(Name), Players);
 	   .send(Players, tell, vote_for(Day, Me, Player, MaxCertainty));

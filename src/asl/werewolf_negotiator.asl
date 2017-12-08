@@ -4,8 +4,12 @@ alive.
 /* Rules */
 finished_negotiations(Day) :-
 	.count(utility(Day, _, _, _, _), CntNegotiations) &
-	.count(player(_), CntPlayers) &
-	(CntNegotiations - 1) == CntPlayers.
+	.count(player(_), CntTownsfolk) &
+	.count(werewolf(_), CntWerewolves) &
+	CntPlayers = CntTownsfolk + CntWerewolves &
+	.findall(Name, utility(Day, _, Name, _, _), Names) &
+	.print("(CntNegotiations =", CntNegotiations, " CntPlayers=", CntPlayers, " Names=", Names) &
+	CntNegotiations - 1 == CntPlayers.
 
 /* Initial goals */
 !join_game(game_coordinator).
@@ -29,8 +33,8 @@ finished_negotiations(Day) :-
 	
 /* Add townsperson to beliefs */
 +player(Player)
+	: not werewolf(Player)
 	<- 	+townsperson(Player, 0.0);
-		.my_name(Me);
 		.print("I've learned that ", Player, " is playing the game.").
 	
 /*
@@ -132,6 +136,8 @@ finished_negotiations(Day) :-
 	   /* Ask other players to vote for someone */
 	   .findall(Name, player(Name), Players);
 	   .send(Players, tell, vote_for(Day, Me, Player, Prob));
+	   .findall(Werewolf, werewolf(Werewolf), Werewolves);
+	   .send(Werewolves, tell, vote_for(Day, Me, Player, Prob));
 	   /* Estimate the utility of its own plan */
 	   Utility = Prob;
 	   +utility(Day, appeal_to_authority, Me, Player, Utility).
@@ -165,7 +171,7 @@ finished_negotiations(Day) :-
 	   ?utility(Day, _, Accuser, Accused, MaxUtility);
 	   /* Vote to lynch the player */
 	   .print("I'ma vote for ", Accused);
-	   add_player_thought(Me, Accuser, " has told me that ", Accuser, " is a werewolf. Let him keep believing that.");
+	   add_player_thought(Me, Accuser, " has told me that ", Accused, " is a werewolf. Let him keep believing that.");
 	   .send(game_coordinator, tell, voted_to_lynch(Day, Me, Accused));
 	   /* Tell everyone else who the player is voting for */
 	   .findall(Name, player(Name), Players);
