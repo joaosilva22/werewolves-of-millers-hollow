@@ -86,6 +86,10 @@ public class TownEnvironment extends Environment {
 				stats.winner = GameStatistics.Team.Townsfolk;
 			}
 			result = true;
+			model.setGamesToPlay(model.getGamesToPlay() - 1);
+			if (model.getGamesToPlay() > 0) {
+				run();
+			}
 		} break;
 		}
 		return result;

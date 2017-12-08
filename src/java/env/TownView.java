@@ -77,13 +77,13 @@ public class TownView extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				if (arg0.getActionCommand().equals("Settings")) {
 					final JFrame settingsWindow = new JFrame();
-					settingsWindow.setSize(new Dimension(350, 150));
+					settingsWindow.setSize(new Dimension(350, 200));
 					settingsWindow.setResizable(false);
 			        settingsWindow.setTitle("Settings");
 			        settingsWindow.setVisible(true);
 			        
 			        JPanel content = new JPanel();
-			        content.setLayout(new GridLayout(5, 2));
+			        content.setLayout(new GridLayout(6, 2));
 			        settingsWindow.setContentPane(content);
 			        
 			        JLabel randomTownsfolk = new JLabel("Random townsfolk");
@@ -110,6 +110,12 @@ public class TownView extends JFrame {
 			        werewolvesCount.setValue((int)model.getNumberOfWerewolves());
 			        settingsWindow.getContentPane().add(werewolvesCount);
 			        
+			        JLabel numberOfGames = new JLabel("Number of games");
+			        settingsWindow.getContentPane().add(numberOfGames);
+			        final JSpinner numberOfGamesCount = new JSpinner();
+			        numberOfGamesCount.setValue((int)model.getGamesToPlay());
+			        settingsWindow.getContentPane().add(numberOfGamesCount);
+			        
 			        JButton cancel = new JButton("Cancel");
 			        cancel.addActionListener(new ActionListener() {
 						@Override
@@ -131,6 +137,7 @@ public class TownView extends JFrame {
 								model.setNumberOfTownsfolk((int)(townsfolkCount.getValue()));
 								model.setNumberOfRandomWerewolves((int)randomWerewolvesCount.getValue());
 								model.setNumberOfWerewolves((int)(werewolvesCount.getValue()));
+								model.setGamesToPlay((int)numberOfGamesCount.getValue());
 								settingsWindow.dispatchEvent(new WindowEvent(settingsWindow, WindowEvent.WINDOW_CLOSING));
 							}
 						}
