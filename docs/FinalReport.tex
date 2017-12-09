@@ -107,26 +107,10 @@ The purpose of our work is to create a set of agent architectures that are able 
 
 \section{Specification}
 
-\subsection{Agents Identification}
-
-There are several kind of agents in the game: the game\_coordinator (the narrator of the game), the twonsperson, the werewolves and the fortune\_teller.
-The townsperson has three type of behaviours:
-\begin{itemize}
-	\item the \textbf{townsperson\_random}, where the townsperson will vote randomly in other player to die
-	\item the \textbf{townsperson\_strategic}, this type of agent will calculate a certainty factor about other players. It will increase the certainty factor about a player every time that player chooses to vote on him/her to die. 
-	\item the \textbf{townsperson\_negotiator}, (missing...)
-\end{itemize}
-
-The werewolf also has three type of behaviours:
-\begin{itemize}
-	\item the \textbf{werewolf\_random}, where the werewolf will vote randomly in other player to die
-	\item the \textbf{werewolf\_strategic}, only the townsfolk will have certainty factors associated and it will increase everytime one of the townsfolk vote in one of the werewolves
-	\item the \textbf{werewolf\_negotiator}, (missing...)
-\end{itemize}
-
-\subsection{Agents Characterization}
+\subsection{Agents Identification and Characterization}
 \subsubsection{game\_coordinator agent}
-Each game\_coordinator agent has the following parts:
+This agent is what was previously called as the \textit{narrator} of the game, wil control the game flow. Responsible for switching turns during the day and night, verifying if there are enough players on game and making the right setup of the game. 
+The game\_coordinator agent has the following parts:
 \begin{itemize}
 	\item \textbf{enough\_players} - verify if the game has enough players;
 	\item \textbf{all\_werewolves\_voted} - verify if all the werewolves voted during their turn;
@@ -149,21 +133,61 @@ Each game\_coordinator agent has the following parts:
 	\item \textbf{reset} - reset the game.
 \end{itemize} 
 \subsubsection{townsperson\_random agent}
-This agent will act on random behaviours and has the following characteristics:
+This agent will act as a townsperson with random behaviours, it will vote randomly on other player to be lynched and has the following characteristics:
 \begin{itemize}
 	\item \textbf{living\_werewolves} - initial belief of how many werewolves are playing; 
 	\item \textbf{player} - add others player to that townsfolk database;
 	\item \textbf{day} - wake up and vote on other player randomly;
-	\item \textbf{dead} - remove the dead player from his/her database and update his/her belief if that player was a werewolf;
+	\item \textbf{dead} - remove the dead player from the player database;
 \end{itemize}
 
 \subsubsection{townsperson\_strategic agent}
+A townsperson\_strategic agent will vote based on certainty factors. 
+His/her beliefs are accompanied by a certainty factor that ranges from 0 to 1. For example, if a agent believes another to be a werewolf then the belief will be represented as: 
+\newline
+\textbf{werewolf(player, 0.5)} 
+\newline
+This would be in its belief base, meaning that the agent is reasonably sure that player is a werewolf. The beliefs will be updated when:
+\begin{enumerate}
+	\item the player wakes up and find out who's been killed, from other player's vote the player can determine:
+	\begin {enumerate}
+		\item who the other players wants to see dead;
+		\item if the voter wants to kill the player, then the player may suspect that the voter is a werewolf;
+		\item if the voter wants to kill a player that the player thinks is a werewolf, then the player may suspect the voter is a townsperson;
+		\item if the voter wants to kill a player that the player thinks is a townsperson, then the player may suspect the voter is a werewolf;
+	\end{enumerate}
+	\item the player finds out how the others have voted
+	\begin{enumerate}
+		\item if the player believes some players wanted the player who died dead, then the player may suspect that they are werewolves
+	\end{enumerate}
+\end{enumerate}
+The beliefs must be revised every time, and past information should be taken into account in future belief updates. If the player receives contradicting information then their belief will stay the same (most likely).
+
 This agent will act based on certainty factors created and calculated based on others players actions and has the following characteristics:
 \begin{itemize}
 	\item \textbf{living\_werewolves} - initial belief of how many werewolves are playing; 
 	\item \textbf{player} - add others player to that townsfolk database;
-	\item \textbf{day} - wake up and vote on other player with the highest value of the certainty factor;
+	\item \textbf{day} - wake up and vote on other player that believes to be a werewolf, the one with the highest certainty werewolf factor;
+	\item \textbf{voted\_to\_lynch} - updates the database beliefs taking into account other player votes and actions;
+	\item \textbf{dead} - delete dead players from the player database and beliefs database;
 \end{itemize}
+
+\subsubsection{townsperson\_negotiator agent}
+
+\begin{itemize}
+	\item \textbf{living\_werewolves} - initial belief of how many werewolves are playing; 
+	\item \textbf{player} - add others player to that townsfolk database;
+	\item \textbf{day} - wake up and select the player that believes to be the most likely werewolf and votes on that player;
+	\item \textbf{voted\_to\_lynch} - updates the database beliefs taking into account other players votes and actions;
+	\item \textbf{dead} - delete dead players from the player database and beliefs database
+\end{itemize}
+\subsubsection{werewolf\_random agent}
+
+\subsubsection{werewolf\_strategic agent}
+
+\subsubsection{werewolf\_negotiator agent}
+
+\subsubsection{fortune\_teller agent}
 \subsection{Interaction Protocols}
 \section{Development}
 \subsection{Platform/Tool}
