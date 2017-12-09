@@ -12,7 +12,7 @@ urlcolor=blue,
 linkcolor=black}
 
 \title{ \begin{center}
-					\includegraphics[scale=0.6]{../images/FEUPlogo}
+					\includegraphics[scale=0.6]{./images/FEUPlogo}
 				\end{center}
 				\textbf{Werewolves of Miller's Hollow}}
 \author{João Silva - up201405490\\
@@ -23,7 +23,7 @@ linkcolor=black}
 
 \begin{titlepage}
 	\centering
-	\includegraphics[width=1\textwidth]{../images/FEUPlogo}\par\vspace{1cm}
+	\includegraphics[width=1\textwidth]{./images/FEUPlogo}\par\vspace{1cm}
 	{\huge\bfseries Werewolves of Miller's Hollow \par}
 	\vspace{2cm}
 	{\scshape\Large Final Report\par}
@@ -53,7 +53,7 @@ linkcolor=black}
 \textit{Werewolves of Miller’s Hollow} game is based on the russian game called “Mafia” and can be played by groups between eight and eighteen people. 
 Game Components (24 roles):
 \begin{center}
-	\includegraphics[scale=0.6]{../images/gamecomponents}
+	\includegraphics[scale=0.6]{./images/gamecomponents}
 \end{center}
 	
 \begin{itemize}
@@ -72,7 +72,7 @@ Game Components (24 roles):
 
 For each number of players there are different combinations of roles:
 \begin{center}
-\includegraphics[scale=0.6]{../images/playermix}
+\includegraphics[scale=0.6]{./images/playermix}
 \end{center}
 
 \setlength{\parindent}{0cm}There are two phases in the game: 
@@ -281,7 +281,11 @@ The \textit{werewolves\_of\_miller\_hollow} application is structured in 3 main 
 	\end{itemize}
 	\item lib package;
 		\begin{itemize}
-			\item 
+			\item max\_utility Class - class that is used to calculate the plan with most utility;
+			\item select\_max\_or\_random Class - class that is to select the pair Player\-Certainty with the most certainty or in tie it chooses a random pair;
+			\item count\_players\_votes Class - class that it is used to count the player's votes;
+			\item random\_player Class - class that it is used to choose a random player;
+			\item unique\_element Class - class that filters a list so that it has unique elements;
 		\end{itemize}
 	\item src\textbackslash asl
 	\begin{itemize}
@@ -297,7 +301,10 @@ The \textit{werewolves\_of\_miller\_hollow} application is structured in 3 main 
 
 \end{itemize}
 \subsection{Classes Diagram}
+
 \subsection{Implementation Details}
+\subsubsection{GUI}
+
 \section{Experiments}
 \section{Enhancements}
 \section{Resources}
