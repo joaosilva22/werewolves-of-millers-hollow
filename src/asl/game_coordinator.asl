@@ -171,6 +171,7 @@ werewolves_have_won :-
 	: all_werewolves_voted(Day) 
 	<- print_env("All werewolves have voted.");
 	   .findall(Vote, voted_to_eliminate(Day, _, Vote), Votes);
+	   .print("VOTES_NIGHT=", Votes);
 	   werewolves_of_millers_hollow.actions.count_player_votes(Votes, MostVotedPlayers, MostVotedCnt);
 	   .length(MostVotedPlayers, CntMostVotedPlayers);
 	   if (CntMostVotedPlayers > 1) 
@@ -210,6 +211,7 @@ werewolves_have_won :-
 	   print_env("Upon further inspection of the body, it was discovered that they were a ", Role, ".");
 	   /* Tell others about the death of the player */
 	   .findall(Other, role(_, Other), Others);
+	   .wait(500);
 	   .send(Others, tell, dead(Day, night, Player, Role)).
 	   
 /* When everyone in the town has voted, someone is lynched */
@@ -217,6 +219,7 @@ werewolves_have_won :-
 	: everyone_has_voted(Day)
 	<- print_env("The town has finished deliberating.");
 	   .findall(Vote, voted_to_lynch(Day, _, Vote), Votes);
+	   .print("VOTES_DAY=", Votes);
 	   werewolves_of_millers_hollow.actions.count_player_votes(Votes, MostVotedPlayers, MostVotedCnt);
 	   .length(MostVotedPlayers, CntMostVotedPlayers);
 	   if (CntMostVotedPlayers > 1) 
@@ -238,6 +241,7 @@ werewolves_have_won :-
 	   	   print_env(DeadPlayer, " was lynched.");
 	   	   print_env("After inspecting the body it was determined that they were a ", Role, ".");
 	   	   .findall(Other, role(_, Other), Others);
+	   	   .wait(500);
 	   	   .send(Others, tell, dead(Day, day, DeadPlayer, Role));
 	   }.
 	   

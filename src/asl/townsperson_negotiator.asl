@@ -2,6 +2,8 @@
 finished_negotiations(Day) :-
 	.count(utility(Day, _, _, _, _), CntNegotiations) &
 	.count(player(_), CntPlayers) &
+	//.findall(Name, utility(Day, _, Name, _, _), Names) &
+	//.print("(CntNegotiations -1)=", CntNegotiations - 1, " CntPlayers=", CntPlayers, " Names=", Names) &
 	(CntNegotiations - 1) == CntPlayers.
 
 /* Initial goals */
@@ -60,9 +62,7 @@ finished_negotiations(Day) :-
 /* When the player is accused of being a werewolf */
 +voted_to_lynch(_, Accuser, Accused)
 	: .my_name(Accused)
-	<- .findall(X, werewolf(X, _), Xs);
-	   .print("I'me being accused of being a werewolf by ", Accuser, " Xs=", Xs);
-	   /* The accuser becomes more suspect */
+	<- /* The accuser becomes more suspect */
 	   ?werewolf(Accuser, Certainty);
 	   UpdatedCertainty = Certainty + 0.1;
 	   .abolish(werewolf(Accuser, _));
@@ -201,11 +201,11 @@ finished_negotiations(Day) :-
 /* Begin a negotiation */
 +!negotiate(Day)
 	/* TODO(jp): Precondition to choose this plan over the others */
-	: Day < 2
+	// : Day < 2
 	<- !appeal_to_authority(Day).
 	
-+!negotiate(Day)
-	<- !promise_of_future_reward(Day).
+//+!negotiate(Day)
+//	<- !promise_of_future_reward(Day).
 	
 /*
  * Appeal to authority
@@ -223,7 +223,8 @@ finished_negotiations(Day) :-
 	   .send(Players, tell, vote_for(Day, Me, Player, MaxCertainty));
 	   /* Estimate the utility of its own plan */
 	   Utility = MaxCertainty;
-	   +utility(Day, appeal_to_authority, Me, Player, Utility).
+	   +utility(Day, appeal_to_authority, Me, Player, Utility);
+	   !decide(Day).
 	   
 /* Stub for non-negotiating agents */
 +vote_for(Day, Accuser, Accused, -1)
@@ -235,7 +236,7 @@ finished_negotiations(Day) :-
 	: /* If the player is not the accuser or being accused */
 	  not .my_name(Accused) & not .my_name(Accuser) &
 	  /* And the accuser is trustworthy */
-	  werewof(Accuser, Distrust) & Distrust <= 0.3 &
+	  werewolf(Accuser, Distrust) & Distrust <= 0.3 &
 	  /* And the accused is untrustworthy */
 	  townsfolk(Accused, Trust) & Trust < AccuserCertainty
 	<- /* Estimate the utility of this plan */
@@ -271,6 +272,8 @@ finished_negotiations(Day) :-
 	   /* Send the request to the target player */
 	   .my_name(Me);
 	   .send(Accuser, tell, vote_for_in_exchange(Day, Me, Player, Accused));
+	   /* Store my own request */
+	   +vote_for_in_exchange(Day, Me, Player, Accused);
 	   /* Send an empty vote_for request to the others */
 	   .findall(Name, player(Name), Others);
 	   for (.member(Other, Others)) {
@@ -282,7 +285,55 @@ finished_negotiations(Day) :-
 	: engaged_in_promise_negotiation(Day)
 	/* Fall back to appeal to authority */
 	<- !appeal_to_authority(Day).
+	
+/* When receiving a promise of future reward */
++vote_for_in_exchange(Day, Accuser, Accused, Promised)
+	: /* If the player is not the accuser or being accused */
+	  not .my_name(Accused) & not .my_name(Accuser) &
+	  /* And the accuser is trustworthy */
+	  werewolf(Accuser, Distrust) & Distrust <= 0.3 &
+	  /* And the accused is untrustworthy */
+	  townsfolk(Accused, Trust) & Trust <= 0.3 &
+	  /* If I'm not engaged in a promise negotiation */
+	  not engaged_in_promise_negotiation(Day)
+	<- /* Agent becomes engaged in a promise negotiation */
+	   +engaged_in_promise_negotaition(Day);
+	   /* Calculate the utility of the plan */
+	   ?werewolf(Promised, PromisedDistrust);
+	   Utility = Distrust + PromisedDistrust;
+	   .print(Accuser, " is promising me to vote for ", Promised, " if I vote for ", Accused);
+	   +utility(Day, promise_of_future_reward, Accuser, Accused, Utility).
+	   /* TODO(jp): Remember that the accuser has promised to vote for Promised */
+	
+/* When receiving a vote_for_in_exchange from itself do nothing */
++vote_for_in_exchange(Day, Accuser, Accused, Promised) : .my_name(Accuser).
+	
+/* When receiving a request to vote that is not good */
++vote_for_in_exchange(Day, Accuser, Accused, Promised)
+	<- +utility(Day, promise_of_future_reward, Accuser, Accused, -1.0);
+	   /* Reject the plan straight away */
+	   .my_name(Me);
+	   .send(Accuser, tell, reject_vote_for_in_exchange(Day, Me, Accused, Promised));
+	   !decide(Day).
 	   
+/* When the promise was accepted */
++accept_vote_for_in_exchange(Day, Partner, Accused, Promised)
+	<- /* Calculate the utility of this plan */
+	   ?werewolf(Accused, UtilityAccused);
+	   ?werewolf(Promised, UtilityPromised);
+	   Utility = UtilityAccused + UtilityPromised;
+	   .my_name(Me);
+	   +utility(Day, promise_of_future_reward, Me, Accused, Utility);
+	   !decide(Day).
+	   
+/* When the promise was rejected */
++reject_vote_for_in_exchange(Day, Partner, Accused, Promised)
+	<- /* Calculate the utility of this plan */
+	   ?werewolf(Accused, Utility);
+	   .my_name(Me);
+	   +utility(Day, promise_of_future_reward, Me, Accused, Utility);
+	   !decide(Day).
+
 /* Make a decision */
 +!decide(Day) : not finished_negotiations(Day).
 +!decide(Day)
@@ -291,10 +342,18 @@ finished_negotiations(Day) :-
 	   /* Select the plan with the most utility */
 	   .findall(Utility, utility(Day, _, _, _, Utility), Utilities);
 	   lib.max_utility(Utilities, MaxUtility);
-	   ?utility(Day, _, Accuser, Accused, MaxUtility);
+	   ?utility(Day, Type, Accuser, Accused, MaxUtility);
+	   /* If the type is a promise of future reward, then accept the promise */
+	   if (Type == promise_of_future_reward) {
+	       ?vote_for_in_exchange(Day, Accuser, Accused, Promised);
+	       .send(Accuser, tell, accept_vote_for_in_exchange(Day, Me, Accused, Promised));
+	       add_player_thought(Me, Accuser, " has promised me that he will vote for ", Promised, " next round if I vote for ", Accused, " now. I'm accepting his proposal.");
+	   };
+	   if (Type == appeal_to_authority) {
+	   	   add_player_thought(Me, Accuser, " has told me that ", Accused, " is a werewolf. I believe him.");
+	   };
 	   /* Vote to lynch the player */
 	   .print("I'ma vote for ", Accused);
-	   add_player_thought(Me, Accuser, " has told me that ", Accused, " is a werewolf. I believe him.");
 	   .send(game_coordinator, tell, voted_to_lynch(Day, Me, Accused));
 	   /* Tell everyone else who the player is voting for */
 	   .findall(Name, player(Name), Players);
