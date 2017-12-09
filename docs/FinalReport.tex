@@ -107,7 +107,7 @@ The purpose of our work is to create a set of agent architectures that are able 
 
 \section{Specification}
 
-\subsection{Agents Identification and Characterization}
+\subsection{Agents Identification}
 
 There are several kind of agents in the game: the game\_coordinator (the narrator of the game), the twonsperson, the werewolves and the fortune\_teller.
 The townsperson has three type of behaviours:
@@ -124,7 +124,7 @@ The werewolf also has three type of behaviours:
 	\item the \textbf{werewolf\_negotiator}, (missing...)
 \end{itemize}
 
-\subsection{Architecture}
+\subsection{Agents Characterization}
 \subsubsection{game\_coordinator agent}
 Each game\_coordinator agent has the following parts:
 \begin{itemize}
@@ -147,8 +147,15 @@ Each game\_coordinator agent has the following parts:
 	\item \textbf{ready} - players update their beliefs after someone being killed;
 	\item \textbf{tell\_personality} - tell to the fortune\_teller the true personality of a player;
 	\item \textbf{reset} - reset the game.
-
 \end{itemize} 
+\subsubsection{townsperson\_random agent}
+This agent will act on random behaviours and has the following characteristics:
+\begin{itemize}
+	\item \textbf{living_werewolves} - initial belief of how many werewolves are playing; 
+	\item \textbf{player} - add others player to that townsfolk database;
+	\item \textbf{day} - wake up and vote on other player randomly;
+	\item \textbf{dead} - remove the dead player from his/her database and update his/her belief if that player was a werewolf;
+\end{itemize}
 
 \subsection{Interaction Protocols}
 \section{Development}
