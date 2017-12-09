@@ -75,6 +75,7 @@ werewolves_have_won :-
 	   	   .concat("negotiator_townsperson", I, Name);
 	   	   .create_agent(Name, "src/asl/townsperson_negotiator.asl");
 	   }.
+	   //.create_agent("fortune_teller_random", "src/asl/fortune_teller_random.asl").
 
 /*
  * Game setup
@@ -89,10 +90,10 @@ werewolves_have_won :-
 	   .count(role(_, _), CntPlayer);
 	   .print("(", CntPlayer, "/", MinPlayer, ") have joined. Starting the game.");
 	   .findall([Role, Name], role(Role, Name), Players);
+	   //!inform_fortune_teller(Players);
 	   !inform_townsfolk(Players);
 	   !inform_werewolves(Players);
 	   .wait(1000);
-	  // !inform_fortune_teller(Players)
 	   !start_turn(1).
 +!setup_game
 	: not enough_players
@@ -102,15 +103,18 @@ werewolves_have_won :-
 	<- .print("Game has already begun.").
 	
 /* Tell fortune_teller about the other players */
-/*
+ 
 +!inform_fortune_teller([])
 	<- true.
++!inform_fortune_teller([[fortune_teller,Player]|T])
+	: setup
+	<- !inform_fortune_teller(T).	
 +!inform_fortune_teller([[_,Player]|T])
 	: setup
 	<- .send(fortune_teller, tell, player(Player));
 	   !inform_fortune_teller(T).
 	
-*/	
+		
 /* Tell townsfolk about the other players */
 +!inform_townsfolk([])
 	<- true.
@@ -140,7 +144,8 @@ werewolves_have_won :-
 
 /* Begins the turn */
 +!start_turn(Day)
-	<- !wake_up_werewolves(Day).
+	<- 	//!wake_up_fortune_teller(Day);
+		!wake_up_werewolves(Day).
 
 /* Wake up fortune teller */
 +!wake_up_fortune_teller(Day)

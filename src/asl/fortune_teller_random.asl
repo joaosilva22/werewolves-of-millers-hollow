@@ -25,18 +25,18 @@ alive.
 
 /* Ask the coordinator for the true identity of a player */
 +!find_true_personality(Day)
-	:true
+	:alive
 	<- .findall(Name, player(Name), Players);
 	   actions.random_player(Players, Player);
 	   .send(game_coordinator,tell,tell_personality(Player)).
 				   
 /* Answer of the coordinator with the true identity of a Player */				   
 +!true_identity(Player, werewolf)
-	:true
+	:alive
 	<- .abolish(player(Player));
 	   +werewolf(Player).
 +!true_identity(Player, townsperson)
-	:true
+	:alive
 	<- .abolish(player(Player));
 	   +townsperson(Player).	
 		  
@@ -48,27 +48,40 @@ alive.
 	   .count(Werewolves, CntWerewolves);
 	   CntWerewolves > 0;
 	   actions.random_player(Werewolves, Werewolf);
-	   .send(game_coordinator, tell , voted_to_lynch(Day, Me, Werewolf)).	  
+	   .send(game_coordinator, tell , voted_to_lynch(Day, Me, Werewolf));
+	   /* Necessary to interact with negotiating agents */
+	   .findall(Name, player(Name), Players);
+	   .send(Players, tell, vote_for(Day, Me, Player, -1)).	  
 +day(Day)
 	:true
 	<- .my_name(Me);
 	   .findall(Name, player(Name), Players);
 	   actions.random_player(Players, Player);
-	   .send(game_coordinator, tell , voted_to_lynch(Day, Me, Player)).		  
+	   .send(game_coordinator, tell , voted_to_lynch(Day, Me, Player));
+	   /* Necessary to interact with negotiating agents */
+	   .findall(Name, player(Name), Players);
+	   .send(Players, tell, vote_for(Day, Me, Player, -1)).		  
 		   
 /* Remove eliminated player from database */
 +dead(_, _ , Player, Role)
 	: alive & .my_name(Player)
 	<- -alive.
 +dead(Day, Period ,Player, townsfolk)
-	:alive
+	: alive & member(Player, towsnfolk)
 	<-  .print(Player, " has died.");
 		.abolish(townsfolk(Player));
 		.my_name(Me);
 	   	.send(game_coordinator, tell, ready(Day, Period, Me)).	
 +dead(Day, Period ,Player, werewolf)
-	: alive
+	: alive & member(Player, werewolf)
 	<- 	.print(Player, " has died.");
 		.abolish(werewolf(Player));
 		.my_name(Me);
 	   	.send(game_coordinator, tell, ready(Day, Period, Me)).
+
++dead(Day, Period, Player, _)
+	:alive & member(Player, player)	 
+	<- 	.print(Player, " has died.");
+		.abolish(player(Player));
+		.my_name(Me);
+	   	.send(game_coordinator, tell, ready(Day, Period, Me)).  	

@@ -51,7 +51,9 @@ all_werewolves_comunicated(Day) :-
 	   ?townsperson(Name, Prob);
 	   .findall(Werewolf_Name, werewolf(Werewolf_Name), Werewolves);
 	   .length(Werewolves, CntWerewolves);
-	   if (CntWerewolves == 0)
+	   .findall(P, townsperson_to_eliminate(Day,_,_,P,-1), Ps);
+	   .length(Ps,CntVotes);
+	   if (CntWerewolves == 0 | (CntVotes == CntWerewolves))
 	   {
 	   	 .print(Me, " voted on " , Name);
 	   	 .send(game_coordinator, tell, voted_to_eliminate(Day, Me, Name));	
@@ -65,12 +67,12 @@ all_werewolves_comunicated(Day) :-
 	   
 +townsperson_to_eliminate(Day,From, Player, Pro, Type)
 	: all_werewolves_comunicated(Day)	   
-	<- .findall(Probability, townsperson(_, Probability), Probabilities);
+	<- .my_name(Me);
+	   .findall(Probability, townsperson(_, Probability), Probabilities);
 	   .max(Probabilities, Prob); 
 	   .findall(P, townsperson_to_eliminate(Day,_,_,P,0), Ps);
-	   .max(Ps, Communicated_Probability);
-	   .my_name(Me);
-	   if (Prob > Communicated_Probability) 
+	   .length(Ps, CntVotes);
+	   if (Prob > Communicated_Probability | CntVotes == 0) 
 	   {
 	   	?townsperson(Name, Prob);
 	   	.print(Me, " Voted on Townsperson_Name = ", Name);
@@ -78,11 +80,11 @@ all_werewolves_comunicated(Day) :-
 	   }
 	   else
 	   {
+	   	.max(Ps, Communicated_Probability);
 	   	?townsperson_to_eliminate(Day,_,Townsperson_Name,Communicated_Probability,0);
 	   	.print(Me, " Voted on Townsperson_Name = ", Townsperson_Name);
 	   	.send(game_coordinator, tell, voted_to_eliminate(Day, Me, Townsperson_Name));	
 	   }.
-	   
 	
 /* Wake up in the morning */
 +day(Day)
