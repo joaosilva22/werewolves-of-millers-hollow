@@ -93,7 +93,7 @@ werewolves_have_won :-
 	   .count(role(_, _), CntPlayer);
 	   .print("(", CntPlayer, "/", MinPlayer, ") have joined. Starting the game.");
 	   .findall([Role, Name], role(Role, Name), Players);
-	   //!inform_fortune_teller(Players);
+	   !inform_fortune_teller(Players);
 	   !inform_townsfolk(Players);
 	   !inform_werewolves(Players);
 	   .wait(1000);
@@ -108,13 +108,11 @@ werewolves_have_won :-
 /* Tell fortune_teller about the other players */
  
 +!inform_fortune_teller([])
-	<- true.
-+!inform_fortune_teller([[fortune_teller,Player]|T])
-	: setup
-	<- !inform_fortune_teller(T).	
+	<- true.	
 +!inform_fortune_teller([[_,Player]|T])
 	: setup
-	<- .send(fortune_teller, tell, player(Player));
+	<- .findall(Name, role(fortune_teller, Name), Fortune_Tellers);
+	   .send(Fortune_Tellers, tell, player(Player));
 	   !inform_fortune_teller(T).
 	
 		
@@ -147,13 +145,23 @@ werewolves_have_won :-
 
 /* Begins the turn */
 +!start_turn(Day)
-	<- 	//!wake_up_fortune_teller(Day);
+	<-  !wake_up_fortune_teller(Day);
 		!wake_up_werewolves(Day).
 
 /* Wake up fortune teller */
 +!wake_up_fortune_teller(Day)
+	: not townsfolk_have_won & not werewolves_have_won
 	<- print_env("The fortune teller wakes up...");
-	   .send(fortune_teller, tell, find_true_personality(Day)).	
+	   .findall(Name, role(fortune_teller, Name), Fortune_Tellers);
+	   .send(Fortune_Tellers, achieve, find_true_personality(Day)).	
+
++!wake_up_fortune_teller(Day)
+	: townsfolk_have_won 
+	<- .print("tonwsfolk won").
+	
++!wake_up_fortune_teller(Day)
+	: werewolves_have_won
+	<- .print("werewolves won").	
 	
 /* Before waking up the werewolves, check if there are any still alive */
 +!wake_up_werewolves(Day)
@@ -263,10 +271,9 @@ werewolves_have_won :-
 	   !start_turn(Day + 1).
 	   
 /* Tell to the fortune_teller the true personality of a Player */
-+tell_personality(Player)
-	:true
++!tell_personality(Player, Fortune_Teller)
 	<- ?role(Role, Player);
-	   .send(fortune_teller, tell, true_identity(Player, Role)).
+	   .send(Fortune_Teller, tell, true_identity(Player, Role)).
 
 /*
  * Reset the game

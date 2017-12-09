@@ -158,7 +158,7 @@ all_werewolves_comunicated(Day) :-
 	   .abolish(werewolf(Player));
 	   .my_name(Me);
 	   .send(game_coordinator, tell, ready(Day, Period, Me)).
-+dead(Day, Period, Player, townsperson)
++dead(Day, Period, Player, _)
 	: alive
 	<- .print(Player, " has died.");
 	   .abolish(townsperson(Player, _));
