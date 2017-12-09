@@ -151,12 +151,19 @@ Each game\_coordinator agent has the following parts:
 \subsubsection{townsperson\_random agent}
 This agent will act on random behaviours and has the following characteristics:
 \begin{itemize}
-	\item \textbf{living_werewolves} - initial belief of how many werewolves are playing; 
+	\item \textbf{living\_werewolves} - initial belief of how many werewolves are playing; 
 	\item \textbf{player} - add others player to that townsfolk database;
 	\item \textbf{day} - wake up and vote on other player randomly;
 	\item \textbf{dead} - remove the dead player from his/her database and update his/her belief if that player was a werewolf;
 \end{itemize}
 
+\subsubsection{townsperson\_strategic agent}
+This agent will act based on certainty factors created and calculated based on others players actions and has the following characteristics:
+\begin{itemize}
+	\item \textbf{living\_werewolves} - initial belief of how many werewolves are playing; 
+	\item \textbf{player} - add others player to that townsfolk database;
+	\item \textbf{day} - wake up and vote on other player with the highest value of the certainty factor;
+\end{itemize}
 \subsection{Interaction Protocols}
 \section{Development}
 \subsection{Platform/Tool}
