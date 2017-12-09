@@ -201,13 +201,20 @@ finished_negotiations(Day) :-
 /* Begin a negotiation */
 +!negotiate(Day)
 	/* TODO(jp): Precondition to choose this plan over the others */
+	: Day < 2
 	<- !appeal_to_authority(Day).
+	
++!negotiate(Day)
+	<- !promise_of_future_reward(Day).
+	
+/*
+ * Appeal to authority
+ */
 	
 /* Start an appeal to authority */ 
 +!appeal_to_authority(Day)
 	<- .my_name(Me);
 	   /* Select the player that is most likely a werewolf */
-	   /* TODO(jp): Introduce some randomness if there are multiple possible choices */
 	   .findall([Werewolf, Certainty], werewolf(Werewolf, Certainty), Certainties);
 	   lib.select_max_or_random(Certainties, Player);
 	   ?townsperson(Player, MaxCertainty);
@@ -241,6 +248,40 @@ finished_negotiations(Day) :-
 +vote_for(Day, Accuser, Accused, AccuserCertainty)
 	<- +utility(Day, appeal_to_authority, Accuser, Accused, -1.0);
 	   !decide(Day).
+	   
+/*
+ * Promise of future reward
+ * To avoid locks, if a player is already enagaged in a promise negotiation then it
+ * cannot start a promise negotiation himself or accept any promises coming from other
+ * agents. 
+ */
+ 
+/* Start a promise of future reward */
++!promise_of_future_reward(Day)
+	: not engaged_in_promise_negotiation(Day)
+	<- /* Agent becomes engaged in its own promise negotiation */
+	   +engaged_in_promise_negotiation(Day)
+	   /* Select the player that is most likely a werewolf */
+	   .findall([Werewolf, Certainty], werewolf(Werewolf, Certainty), Certainties);
+	   lib.select_max_or_random(Certainties, Player);
+	   /* Select the player that is trying the hardest to eliminate another */
+	   .findall([Accuser, Accused], voted_to_lynch(_, Accuser, Accused), Votes);
+	   lib.select_most_common_or_random(Votes, [Accuser, Accused]);
+	   .print("I'm promising ", Accuser, " that I will vote for ", Accused, " if he votes for ", Player, " (Votes=", Votes, ")");
+	   /* Send the request to the target player */
+	   .my_name(Me);
+	   .send(Accuser, tell, vote_for_in_exchange(Day, Me, Player, Accused));
+	   /* Send an empty vote_for request to the others */
+	   .findall(Name, player(Name), Others);
+	   for (.member(Other, Others)) {
+	       .send(Other, tell, vote_for(Day, Accuser, Accused, -1));
+	   }.
+	   
+/* If the player is already engaged in a promise negotiation */
++!promise_of_future_reward(Day)
+	: engaged_in_promise_negotiation(Day)
+	/* Fall back to appeal to authority */
+	<- !appeal_to_authority(Day).
 	   
 /* Make a decision */
 +!decide(Day) : not finished_negotiations(Day).

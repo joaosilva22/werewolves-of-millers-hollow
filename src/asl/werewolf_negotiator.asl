@@ -125,6 +125,10 @@ finished_negotiations(Day) :-
 	/* TODO(jp): Precondition to choose this plan over the others */
 	<- !appeal_to_authority(Day).
 	
+/*
+ * Appeal to authority 
+ */
+	
 /* Start an appeal to authority */
 +!appeal_to_authority(Day)
 	<- .print("Dealin' & Appealin'");
