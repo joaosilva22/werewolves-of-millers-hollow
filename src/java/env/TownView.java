@@ -83,7 +83,7 @@ public class TownView extends JFrame {
 			        settingsWindow.setVisible(true);
 			        
 			        JPanel content = new JPanel();
-			        content.setLayout(new GridLayout(8, 2));
+			        content.setLayout(new GridLayout(9, 2));
 			        settingsWindow.setContentPane(content);
 			        
 			        JLabel randomTownsfolk = new JLabel("Random townsfolk");
@@ -122,6 +122,12 @@ public class TownView extends JFrame {
 			        negotiatorWerewolvesCount.setValue((int)model.getNumberOfNegotiatorWerewolves());
 			        settingsWindow.getContentPane().add(negotiatorWerewolvesCount);
 			        
+			        JLabel randomFortuneTellers = new JLabel("Random fortune tellers");
+			        settingsWindow.getContentPane().add(randomFortuneTellers);
+			        final JSpinner randomFortuneTellersCount = new JSpinner();
+			        randomFortuneTellersCount.setValue((int)model.getNumberOfRandomFortuneTellers());
+			        settingsWindow.getContentPane().add(randomFortuneTellersCount);
+			        
 			        JLabel numberOfGames = new JLabel("Number of games");
 			        settingsWindow.getContentPane().add(numberOfGames);
 			        final JSpinner numberOfGamesCount = new JSpinner();
@@ -151,6 +157,7 @@ public class TownView extends JFrame {
 								model.setNumberOfRandomWerewolves((int)randomWerewolvesCount.getValue());
 								model.setNumberOfWerewolves((int)(werewolvesCount.getValue()));
 								model.setNumberOfNegotiatorWerewolves((int)negotiatorWerewolvesCount.getValue());
+								model.setNumberOfRandomFortuneTellers((int)randomFortuneTellersCount.getValue());
 								model.setGamesToPlay((int)numberOfGamesCount.getValue());
 								settingsWindow.dispatchEvent(new WindowEvent(settingsWindow, WindowEvent.WINDOW_CLOSING));
 							}
