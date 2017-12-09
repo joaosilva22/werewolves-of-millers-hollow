@@ -169,22 +169,45 @@ This agent will act based on certainty factors created and calculated based on o
 	\item \textbf{player} - add others player to that townsfolk database;
 	\item \textbf{day} - wake up and vote on other player that believes to be a werewolf, the one with the highest certainty werewolf factor;
 	\item \textbf{voted\_to\_lynch} - updates the database beliefs taking into account other player votes and actions;
-	\item \textbf{dead} - delete dead players from the player database and beliefs database;
+	\item \textbf{dead} - delete dead players from the player database and beliefs database.
 \end{itemize}
 
 \subsubsection{townsperson\_negotiator agent}
-
+This agent has the following characteristics:
 \begin{itemize}
 	\item \textbf{living\_werewolves} - initial belief of how many werewolves are playing; 
 	\item \textbf{player} - add others player to that townsfolk database;
 	\item \textbf{day} - wake up and select the player that believes to be the most likely werewolf and votes on that player;
 	\item \textbf{voted\_to\_lynch} - updates the database beliefs taking into account other players votes and actions;
-	\item \textbf{dead} - delete dead players from the player database and beliefs database
+	\item \textbf{dead} - delete dead players from the player database and beliefs database.
 \end{itemize}
 \subsubsection{werewolf\_random agent}
-
+The werewolf\_random agent will vote on a townsperson randomly to die, without saving any state and votes from other players in its database. It will vote always without any knowledge of others players previous actions.
+This agent has the following characteristics:
+\begin{itemize}
+	\item \textbf{werewolf} - add others werewolves to the player database, knowing who are the others werewolves playing;
+	\item \textbf{player} - add the townsfolk players to the player database, knowing who are the enemies that are playing;
+	\item \textbf{day} - wake up during the day turn and vote randomly on a townsperson;
+	\item \textbf{night} - wake up during the night turn and vote randomly on a townsperson;
+	\item \textbf{dead} - delete dead players from the player database,
+\end{itemize}
 \subsubsection{werewolf\_strategic agent}
-
+This kind of agent will act based on townsfolk previous actions, it will try to determine which of the townsfolk knows the true identity of a werewolf and then it will vote on that player to die during the night turn.
+The probability of a townsperson knowing the true identity of a werewolf will increase everytime a townsperson:
+\begin{enumerate}
+	\item votes on the player;
+	\item votes on another werewolf;
+\end{enumerate}
+This agent has the following characteristics:
+\begin{itemize}
+	\item \textbf{alive} - initial state, the werewolf believes that is alive;
+	\item \textbf{werewolf} - add others werewolves to the player database, knowing who are the others werewolves playing;
+	\item \textbf{player} - add the townsfolk players to the player database, knowing who are the enemies that are playing;
+	\item \textbf{night} - wake up during the night turn and votes on the townsperson that the player believes to be reasonably sure of knowing a werewolf true identity;
+	\item \textbf{day} -wake up during the day turn and votes on the townsperson that the player believes to be reasonably sure of knowing a werewolf true identity;
+	\item \textbf{voted\_to\_lynch} - updates the players beliefs taking into account the townsfolk votes;
+	\item \textbf{dead} - deleted dead players from the player and beliefs database;
+\end{itemize}
 \subsubsection{werewolf\_negotiator agent}
 
 \subsubsection{fortune\_teller agent}
