@@ -255,12 +255,47 @@ Jason is a platform for the development of multi-agent systems. It is an interpr
 \newline\textbf{Description of the main characteristics}\newline
 Jason is an open source project and is developed in JAVA. It is fully customisable in JAVA, it can run a multi-agent system distributed over a network and implements the operational semantics of AgentSpeak.
 \newline\textbf{Highlight of the main features for the work}\newline
-For this work, Jason will be important to create BDI agents. 
+For this work, Jason is important to create BDI agents. 
+\subsubsection{Swing}
+\textbf{What it is used for}\newline
+Swing is a GUI widget toolkit for JAVA. It is part of Oracle's Java Foundation Classes (JFC) – an API for providing a graphical user interface (GUI) for Java programs.
+\newline\textbf{Description of the main characteristics}\newline
+Swing implements a set of components for building graphical user interfaces (GUIs) and adding rich graphics functionality and interactivity to Java applications. The Swing components are implemented entirely in the Java programming language. In addition to familiar components such as buttons, check boxes and labels, Swing provides several advanced components such as tabbed panel, scroll panes, trees, tables, and lists.
+\newline\textbf{Highlight of the main features for the work}\newline
+For this work, swing is used to create a simple graphical user interface, that allow the user to see the agents interacting and the game history.
+
 \section{Specification}
 \subsection{Development Environment}
 The project was developed in the \textit{Windows and Ubuntu} operating system, and the code was written and testes in the IDE \textit{Eclipse Oxygen} and \textit{Eclipse Luna}. 
+
 \subsection{Application Structure}
-The \textit{werewolves_of_miller_hollow} application is structured in 
+The \textit{werewolves\_of\_miller\_hollow} application is structured in 3 main packages/modules:
+\begin{itemize}
+	\item env;
+	\begin{itemize}
+	 \item \textit{GameStatistics} Class - class that saves the game statistics as the number of townsfolk, number of werewolves, number of rounds and the winner team;
+	 \item \textit{PlayerData} Class - class that represents a player and saves its data, such as its role, beliefs, name, thoughts and state(if it is alive);
+	 \item \textit{TownEnvironment} Class - class that has the several actions of the game and creates the different game sessions;
+	 \item \textit{TownModel} Class - class that contains all the data of a game and the game actions;
+	 \item \textit{TownView} Class class that create the user graphic interface;
+	\end{itemize}
+	\item lib package;
+		\begin{itemize}
+			\item 
+		\end{itemize}
+	\item src\textbackslash asl
+	\begin{itemize}
+		\item game\_coordinator agent;
+		\item fortune\_teller agent;
+		\item townsperson\_random agent;
+		\item townsperson\_negotiator agent;
+		\item townsperson\_strategic agent;
+		\item werewolf\_random agent;
+		\item werewolf\_negotiator agent;
+		\item werewolf\_strategic agent;
+	\end{itemize}
+
+\end{itemize}
 \subsection{Classes Diagram}
 \subsection{Implementation Details}
 \section{Experiments}
