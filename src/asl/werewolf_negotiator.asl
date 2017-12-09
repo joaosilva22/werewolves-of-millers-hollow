@@ -11,6 +11,13 @@ finished_negotiations(Day) :-
 	.print("(CntNegotiations =", CntNegotiations, " CntPlayers=", CntPlayers, " Names=", Names) &
 	CntNegotiations - 1 == CntPlayers.
 
+all_werewolves_comunicated(Day) :-
+	 .count(townsperson_to_eliminate(Day,_,_,_,_), CntVotes) &
+	 .count(werewolf(_), CntWerewolves) &
+	 .print("Cntvotes = ", CntVotes, " CntWerewolves = ", CntWerewolves) &
+	 CntVotes == CntWerewolves.
+ 	
+
 /* Initial goals */
 !join_game(game_coordinator).
 
@@ -33,8 +40,7 @@ finished_negotiations(Day) :-
 	
 /* Add townsperson to beliefs */
 +player(Player)
-	: not werewolf(Player)
-	<- 	+townsperson(Player, 0.0);
+	<-	+townsperson(Player, 0.0);
 		.print("I've learned that ", Player, " is playing the game.").
 	
 /*
@@ -47,8 +53,41 @@ finished_negotiations(Day) :-
 	   .print(Me, " wakes up.");
 	   .findall(Probability, townsperson(_, Probability), Probabilities);
 	   .max(Probabilities, Prob);
-	   ?townsperson(Player, Prob);
-	   .send(game_coordinator, tell, voted_to_eliminate(Day, Me, Player)).
+	   .print("My max: ", Prob);
+	   ?townsperson(Name, Prob);
+	   .findall(Werewolf_Name, werewolf(Werewolf_Name), Werewolves);
+	   .length(Werewolves, CntWerewolves);
+	   if (CntWerewolves == 0)
+	   {
+	   	 .print(Me, " voted on " , Name);
+	   	 .send(game_coordinator, tell, voted_to_eliminate(Day, Me, Name));	
+	   }
+	   else
+	   {
+	  	 .send(Werewolves, tell, townsperson_to_eliminate(Day,Me,Name, Prob,0)); 	
+	   }.
+	  
+
+	   
++townsperson_to_eliminate(Day,From, Player, Pro, Type)
+	: all_werewolves_comunicated(Day)	   
+	<- .findall(Probability, townsperson(_, Probability), Probabilities);
+	   .max(Probabilities, Prob); 
+	   .findall(P, townsperson_to_eliminate(Day,_,_,P,0), Ps);
+	   .max(Ps, Communicated_Probability);
+	   .my_name(Me);
+	   if (Prob > Communicated_Probability) 
+	   {
+	   	?townsperson(Name, Prob);
+	   	.print(Me, " Voted on Townsperson_Name = ", Name);
+	   	.send(game_coordinator, tell, voted_to_eliminate(Day, Me, Name));	
+	   }
+	   else
+	   {
+	   	?townsperson_to_eliminate(Day,_,Townsperson_Name,Communicated_Probability,0);
+	   	.print(Me, " Voted on Townsperson_Name = ", Townsperson_Name);
+	   	.send(game_coordinator, tell, voted_to_eliminate(Day, Me, Townsperson_Name));	
+	   }.
 	   
 /* Update probabilities of eliminate a werewolf*/	
     
@@ -76,22 +115,20 @@ finished_negotiations(Day) :-
 	   	update_beliefs_in_townsfolk(Me, Accuser, UpdatedProbability);
 	   	add_player_thought(Me, Accuser, " has voted to lynch me, so it is possible that he knows that I am a werewolf").	
 				   
-/* a townsperson accuse another one */	
-/*			   
+/* a townsperson accuse another one */		
 +voted_to_lynch(_, Accuser, Accused)
-	: townsperson(Accused,AccusedProb) & townsperson(Accuser,AccuserProb) & AccusedProb > 0 & AccuserProb > 0
-	<- ?townsperson(Accuser, Probability);
-		UpdatedProbability = Probability - 0.1;
-		-+townsperson(Accuser, UpdatedProbability);
-		?townsperson(Accused, Prob);
-		NewProbability = Prob - 0.1;
-		-+townsperson(Accused, NewProbability);
-		Add thought proccess to the gui
+	: townsperson(Accused,AccusedProb) & townsperson(Accuser,AccuserProb) & AccusedProb > 0.1 & AccuserProb > 0.1
+	<-  UpdatedProbability = AccuserProb - 0.1;
+		.abolish(townsperson(Accuser, _));
+		+townsperson(Accuser, UpdatedProbability);
+		NewProbability = AccusedProb - 0.1;
+		.abolish(townsperson(Accused, _));
+		+townsperson(Accused, NewProbability);
+		/* Add thought proccess to the gui */
 		.my_name(Me);	
 		update_beliefs_in_townsfolk(Me, Accuser, UpdatedProbability);
 		update_beliefs_in_townsfolk(Me, Accused, NewProbability);
-		add_player_thought(Me, Accuser, " has voted to lynch ", Accused, "so it is possible that he believes that ", Accused ," is a werewolf, so i should let him believe that").			   
-*/
+		add_player_thought(Me, Accuser, " has voted to lynch ", Accused, "so it is possible that he believes that ", Accused ," is a werewolf, so i should let him believe that").
 			   
 /* Remove eliminated player from database */
 +dead(Day, Period, Player, Role)

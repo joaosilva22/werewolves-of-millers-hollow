@@ -28,6 +28,8 @@
 	   .print(Me, " wakes up.");
 	   .findall(Name, player(Name), Players);
 	   werewolves_of_millers_hollow.actions.random_player(Players, Player);
+	   .findall(Name,werewolf(Name), Werewolves);
+	   .send(Werewolves, tell, townsperson_to_eliminate(Day,Me,Player, 0,-1));
 	   .send(game_coordinator, tell, voted_to_eliminate(Day, Me, Player)).
 	   
 /* Wake up in the morning */
