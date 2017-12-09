@@ -145,7 +145,8 @@ This agent will act as a townsperson with random behaviours, it will vote random
 A townsperson\_strategic agent will vote based on certainty factors. 
 His/her beliefs are accompanied by a certainty factor that ranges from 0 to 1. For example, if a agent believes another to be a werewolf then the belief will be represented as: 
 \newline
-\textbf{werewolf(player, 0.5)} 
+\centerline{\textbf{werewolf(player, 0.5)}} 
+\newline
 \newline
 This would be in its belief base, meaning that the agent is reasonably sure that player is a werewolf. The beliefs will be updated when:
 \begin{enumerate}
@@ -237,8 +238,25 @@ It has the following characteristics:
 	\item \textbf{dead} - delete dead players from the player and beliefs database.
 \end{itemize} 
 \subsection{Interaction Protocols}
+
 \section{Development}
 \subsection{Platform/Tool}
+\subsubsection{JADE}
+\textbf{What it is used for}\newline
+It simplifies the implementation of multi-agent systems through a middle-ware that complies with the FIPA(\textit{Foundation for Intelligent Physical Agents}) specifications.
+\newline\textbf{Description of the main characteristics}\newline
+JADE is an open source software fully implemented in JAVA. It allows to distribute agents across machines and the configuration can be controlled via a remote GUI. It also can be changed at run-time by moving agents to another machine. Each agent in JADE can have behaviours, that are tasks.
+Another characteristics of JADE is the communication between agents.
+\newline\textbf{Highlight of the main features for the work}\newline
+For this work, JADE provides comunication peer-to-peer between agents and also the creation of some behaviours
+\subsubsection{Jason}
+\textbf{What it is used for}\newline
+Jason is a platform for the development of multi-agent systems. It is an interpreter for an extended version of AgentSpeak.
+\newline\textbf{Description of the main characteristics}\newline
+Jason is an open source project and is developed in JAVA. It is fully customisable in JAVA, it can run a multi-agent system distributed over a network and implements the operational semantics of AgentSpeak.
+\newline\textbf{Highlight of the main features for the work}\newline
+For this work, Jason will be important to create BDI agents. 
+\section{Specification}
 \subsection{Development Environment}
 \subsection{Application Structure}
 \subsection{Classes Diagram}
