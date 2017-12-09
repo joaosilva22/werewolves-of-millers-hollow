@@ -202,14 +202,23 @@ This agent has the following characteristics:
 \begin{itemize}
 	\item \textbf{alive} - initial state, the werewolf believes that is alive;
 	\item \textbf{werewolf} - add others werewolves to the player database, knowing who are the others werewolves playing;
-	\item \textbf{player} - add the townsfolk players to the player database, knowing who are the enemies that are playing;
+	\item \textbf{player} - add the townsfolk players and beliefs to the player database, knowing who are the enemies that are playing;
 	\item \textbf{night} - wake up during the night turn and votes on the townsperson that the player believes to be reasonably sure of knowing a werewolf true identity;
 	\item \textbf{day} -wake up during the day turn and votes on the townsperson that the player believes to be reasonably sure of knowing a werewolf true identity;
 	\item \textbf{voted\_to\_lynch} - updates the players beliefs taking into account the townsfolk votes;
 	\item \textbf{dead} - deleted dead players from the player and beliefs database;
 \end{itemize}
 \subsubsection{werewolf\_negotiator agent}
-
+This agent has the following characteristics:
+\begin{itemize}
+	\item \textbf{alive} - initial state, the werewolf believes that is alive;
+	\item \textbf{werewolf} - add others werewolves to the player database, knowing who are the others werewolves playing;
+	\item \textbf{player} - add the townsfolk players and beliefs to the player database, knowing who are the enemies that are playing;
+	\item \textbf{night} - wake up during the night turn and votes on the townsperson that the player believes to be reasonably sure of knowing a werewolf true identity;
+	\item \textbf{day} -wake up during the day turn and votes on the townsperson that the player believes to be reasonably sure of knowing a werewolf true identity;
+	\item \textbf{voted\_to\_lynch} - updates the players beliefs taking into account the townsfolk votes;
+	\item \textbf{dead} - deleted dead players from the player and beliefs database;
+\end{itemize}
 \subsubsection{fortune\_teller agent}
 \subsection{Interaction Protocols}
 \section{Development}
