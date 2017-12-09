@@ -25,6 +25,7 @@ public class TownModel {
 	private int numberOfNegotiatorTownsfolk;
 	private int numberOfNegotiatorWerewolves;
 	private int numberOfRandomFortuneTellers;
+	private int numberOfStrategicFortuneTellers;
 	private ArrayList<GameStatistics> statistics;
 	private int gamesToPlay;
 	
@@ -198,10 +199,10 @@ public class TownModel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		String column_names= "Winner\tRounds\tRandom_townsfolk\tStrategic_townsfolk\tNegotiator_townsfolk\tRandom_werewolves\tStrategic_werewolves\tNegotiator_werewolves\tRandom_fortune_tellers";
+		String column_names= "Winner\tRounds\tRandom_townsfolk\tStrategic_townsfolk\tNegotiator_townsfolk\tRandom_werewolves\tStrategic_werewolves\tNegotiator_werewolves\tRandom_fortune_tellers\tStrategic_fortune_tellers";
 		writer.println(column_names);
 		for (GameStatistics stat : statistics) {
-			String row_values = stat.winner +"\t"+ stat.rounds +"\t"+ stat.random_townsfolk +"\t"+ stat.strategic_townsfolk + "\t" + stat.negotiator_townsfolk + "\t"+ stat.random_werewolves +"\t"+ stat.strategic_werewolves + "\t" + stat.negotiator_werewolves + "\t" + stat.random_fortune_tellers;
+			String row_values = stat.winner +"\t"+ stat.rounds +"\t"+ stat.random_townsfolk +"\t"+ stat.strategic_townsfolk + "\t" + stat.negotiator_townsfolk + "\t"+ stat.random_werewolves +"\t"+ stat.strategic_werewolves + "\t" + stat.negotiator_werewolves + "\t" + stat.random_fortune_tellers + "\t" + stat.strategic_fortune_tellers;
 			writer.println(row_values);
 		}
 		writer.close();
@@ -243,5 +244,13 @@ public class TownModel {
 
 	public void setNumberOfRandomFortuneTellers(int numberOfRandomFortuneTellers) {
 		this.numberOfRandomFortuneTellers = numberOfRandomFortuneTellers;
+	}
+	
+	public int getNumberOfStrategicFortuneTellers() {
+		return numberOfStrategicFortuneTellers;
+	}
+
+	public void setNumberOfStrategicFortuneTellers(int numberOfStrategicFortuneTellers) {
+		this.numberOfStrategicFortuneTellers = numberOfStrategicFortuneTellers;
 	}
 }

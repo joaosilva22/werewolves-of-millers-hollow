@@ -77,13 +77,13 @@ public class TownView extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				if (arg0.getActionCommand().equals("Settings")) {
 					final JFrame settingsWindow = new JFrame();
-					settingsWindow.setSize(new Dimension(350, 200));
+					settingsWindow.setSize(new Dimension(350, 300));
 					settingsWindow.setResizable(false);
 			        settingsWindow.setTitle("Settings");
 			        settingsWindow.setVisible(true);
 			        
 			        JPanel content = new JPanel();
-			        content.setLayout(new GridLayout(9, 2));
+			        content.setLayout(new GridLayout(10, 2));
 			        settingsWindow.setContentPane(content);
 			        
 			        JLabel randomTownsfolk = new JLabel("Random townsfolk");
@@ -127,6 +127,12 @@ public class TownView extends JFrame {
 			        final JSpinner randomFortuneTellersCount = new JSpinner();
 			        randomFortuneTellersCount.setValue((int)model.getNumberOfRandomFortuneTellers());
 			        settingsWindow.getContentPane().add(randomFortuneTellersCount);
+
+			        JLabel strategicFortuneTellers = new JLabel("Strategic fortune tellers");
+			        settingsWindow.getContentPane().add(strategicFortuneTellers);
+			        final JSpinner strategicFortuneTellersCount = new JSpinner();
+			        strategicFortuneTellersCount.setValue((int)model.getNumberOfStrategicFortuneTellers());
+			        settingsWindow.getContentPane().add(strategicFortuneTellersCount);
 			        
 			        JLabel numberOfGames = new JLabel("Number of games");
 			        settingsWindow.getContentPane().add(numberOfGames);
@@ -158,6 +164,7 @@ public class TownView extends JFrame {
 								model.setNumberOfWerewolves((int)(werewolvesCount.getValue()));
 								model.setNumberOfNegotiatorWerewolves((int)negotiatorWerewolvesCount.getValue());
 								model.setNumberOfRandomFortuneTellers((int)randomFortuneTellersCount.getValue());
+								model.setNumberOfStrategicFortuneTellers((int)strategicFortuneTellersCount.getValue());
 								model.setGamesToPlay((int)numberOfGamesCount.getValue());
 								settingsWindow.dispatchEvent(new WindowEvent(settingsWindow, WindowEvent.WINDOW_CLOSING));
 							}

@@ -24,4 +24,5 @@ public class GameStatistics {
 	public int negotiator_werewolves;
 	
 	public int random_fortune_tellers;
+	public int strategic_fortune_tellers;
 }
