@@ -1,4 +1,19 @@
 package env;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.List;
+
+import jason.asSyntax.Literal;
 import jason.asSyntax.Structure;
 import jason.asSyntax.Term;
 import jason.environment.Environment;
@@ -8,8 +23,8 @@ public class TownEnvironment extends Environment {
 	
 	@Override
 	public void init(String[] args) {
-		model = new TownModel();
-		model.setView(new TownView());
+		model = new TownModel(this);
+		model.setView(new TownView(model));
 	}
 
 	@Override
@@ -26,7 +41,8 @@ public class TownEnvironment extends Environment {
 		} break;
 		case "add_player": {
 			String name = act.getTerm(0).toString();
-			result = model.addPlayer(name);
+			String role = act.getTerm(1).toString();
+			result = model.addPlayer(name, role);
 		} break;
 		case "remove_player": {
 			String name = act.getTerm(0).toString();
@@ -59,7 +75,58 @@ public class TownEnvironment extends Environment {
 			String thought = sb.toString().replace("\"", "");
 			result = model.addPlayerThought(name, thought);
 		} break;
+		case "end_game": {
+			String winner = act.getTerm(0).toString();
+			int rounds = Integer.parseInt(act.getTerm(1).toString());
+			GameStatistics stats = model.getLatestGameStatistics();
+			stats.rounds = rounds;
+			if (winner.equals("\"werewolves\"")) {
+				stats.winner = GameStatistics.Team.Werewolves;
+			} else {
+				stats.winner = GameStatistics.Team.Townsfolk;
+			}
+			result = true;
+			model.setGamesToPlay(model.getGamesToPlay() - 1);
+			if (model.getGamesToPlay() > 0) {
+				run();
+			}
+		} break;
 		}
 		return result;
+	}
+	
+	public void run() {
+		clearPercepts();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		StringBuilder sb = new StringBuilder();
+		sb.append("create_agents(");
+		sb.append(model.getNumberOfRandomTownsfolk());
+		sb.append(",");
+		sb.append(model.getNumberOfTownsfolk());
+		sb.append(",");
+		sb.append(model.getNumberOfNegotiatorTownsfolk());
+		sb.append(",");
+		sb.append(model.getNumberOfRandomWerewolves());
+		sb.append(",");
+		sb.append(model.getNumberOfWerewolves());
+		sb.append(",");
+		sb.append(model.getNumberOfNegotiatorWerewolves());
+		sb.append(")");
+		String literal = sb.toString();
+		System.out.println("Restarting...");
+		model.clear();
+		model.createGameStatistics();
+		GameStatistics stats = model.getLatestGameStatistics();
+		stats.random_townsfolk = model.getNumberOfRandomTownsfolk();
+		stats.strategic_townsfolk = model.getNumberOfTownsfolk();
+		stats.negotiator_townsfolk = model.getNumberOfNegotiatorTownsfolk();
+		stats.random_werewolves = model.getNumberOfRandomWerewolves();
+		stats.strategic_werewolves = model.getNumberOfWerewolves();
+		stats.negotiator_werewolves = model.getNumberOfNegotiatorWerewolves();
+		addPercept(Literal.parseLiteral(literal));
 	}
 }

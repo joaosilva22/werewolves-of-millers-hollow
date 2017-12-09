@@ -1,6 +1,3 @@
-/* Initial beliefs */
-required_players(8).
-
 /* Rules */
 enough_players :- 
 	required_players(MinPlayer) &
@@ -19,6 +16,13 @@ everyone_has_voted(Day) :-
 	.count(voted_to_lynch(Day, _, _), CntVotes) &
 	CntPlayers == CntVotes.
 	
+everyone_ready(Day, Period) :-
+	.count(role(_, _), CntPlayers) &
+	.count(ready(Day, Period, _), CntReadyToSleep) &
+	.findall(NicePerson, ready(Day, Period, NicePerson), NicePeople) &
+	.print("Day=", Day, " Period=", Period, " CntPlayers=", CntPlayers, " CntReadyToSleep=", CntReadyToSleep, " NicePeople=", NicePeople) &
+	CntPlayers == CntReadyToSleep.
+	
 townsfolk_have_won :-
 	.count(role(werewolf, _), CntWerewolves) &
 	/* print_env(CntWerewolves, " werewolves are still alive.") & */
@@ -35,9 +39,42 @@ werewolves_have_won :-
 
 /* Plans */
 +role(Role, Player)
-	<- add_player(Player);
+	<- add_player(Player, Role);
 	   .print("Player ", Player, " (", Role ,") has joined the game.");	
 	   !setup_game.
+	   
+/* Create the players */
++create_agents(RandomTownsfolkCnt, TownsfolkCnt, NegotiatorTownsfolkCnt, RandomWerewolvesCnt, WerewolvesCnt, NegotiatorWerewolvesCnt)
+	: not setup
+	<- .abolish(required_players(_));
+	   .print("RandomTownsfolkCnt=", RandomTownsfolkCnt, " TownsfolkCnt=", TownsfolkCnt, " RandomWerewolvesCnt=", RandomWerewolvesCnt, " WerewolvesCnt=", WerewolvesCnt);
+	   RequiredPlayers = RandomTownsfolkCnt + TownsfolkCnt + NegotiatorTownsfolkCnt + RandomWerewolvesCnt + WerewolvesCnt + NegotiatorWerewolvesCnt;
+	   +required_players(RequiredPlayers);
+	   .print("RequiredPlayers=", RequiredPlayers);
+	   for (.range(I, 1, RandomWerewolvesCnt)) {
+	       .concat("random_werewolf", I, Name);
+	       .create_agent(Name, "src/asl/werewolf_random.asl");
+	   };
+	   for (.range(I, 1, WerewolvesCnt)) {
+	       .concat("werewolf", I, Name);
+	       .create_agent(Name, "src/asl/werewolf_strategic.asl");
+	   };
+	   for (.range(I, 1, NegotiatorWerewolvesCnt)) {
+	       .concat("negotiator_werewolf", I, Name);
+	       .create_agent(Name, "src/asl/werewolf_negotiator.asl");	
+	   };
+	   for (.range(I, 1, RandomTownsfolkCnt)) {
+	   	   .concat("random_townsperson", I, Name);
+	   	   .create_agent(Name, "src/asl/townsperson_random.asl");
+	   };
+	   for (.range(I, 1, TownsfolkCnt)) {
+		   .concat("townsperson", I, Name);
+	       .create_agent(Name, "src/asl/townsperson_strategic.asl");	
+	   };
+	   for (.range(I, 1, NegotiatorTownsfolkCnt)) {
+	   	   .concat("negotiator_townsperson", I, Name);
+	   	   .create_agent(Name, "src/asl/townsperson_negotiator.asl");
+	   }.
 
 /*
  * Game setup
@@ -47,12 +84,14 @@ werewolves_have_won :-
 +!setup_game
 	: enough_players & not setup
 	<- +setup
+	   .wait(1000);
 	   ?required_players(MinPlayer);
 	   .count(role(_, _), CntPlayer);
 	   .print("(", CntPlayer, "/", MinPlayer, ") have joined. Starting the game.");
 	   .findall([Role, Name], role(Role, Name), Players);
 	   !inform_townsfolk(Players);
 	   !inform_werewolves(Players);
+	   .wait(1000);
 	  // !inform_fortune_teller(Players)
 	   !start_turn(1).
 +!setup_game
@@ -111,12 +150,14 @@ werewolves_have_won :-
 /* Before waking up the werewolves, check if there are any still alive */
 +!wake_up_werewolves(Day)
 	: townsfolk_have_won
-	<- print_env("The townsfolk have won in ", Day, " days.").
+	<- print_env("The townsfolk have won in ", Day, " days.");
+	   !reset("townsfolk", Day).
 	
 /* Before waking up the werewolves, check if there is any townsfolk left alive */
 +!wake_up_werewolves(Day)
 	: werewolves_have_won
-	<- print_env("The werewolves have won in ", Day, " days.").
+	<- print_env("The werewolves have won in ", Day, " days.");
+	   !reset("werewolves", Day).
 	
 /* Wake up the werewolves */
 +!wake_up_werewolves(Day)
@@ -158,7 +199,8 @@ werewolves_have_won :-
 /* Before waking up the town, check if there is any townsfolk still alive */
 +!wake_up_town(Day, _, _)
 	: werewolves_have_won
-	<- print_env("The wereolves have won in ", Day, " days.").
+	<- print_env("The wereolves have won in ", Day, " days.");
+	   !reset("werewolves", Day).
 
 /* Wake up the town when somebody was killed during the night */
 +!wake_up_town(Day, Player, Role)
@@ -168,9 +210,7 @@ werewolves_have_won :-
 	   print_env("Upon further inspection of the body, it was discovered that they were a ", Role, ".");
 	   /* Tell others about the death of the player */
 	   .findall(Other, role(_, Other), Others);
-	   .send(Others, tell, dead(Player, Role));
-	   /* Wake everyone up */
-	   .send(Others, tell, day(Day)).
+	   .send(Others, tell, dead(Day, night, Player, Role)).
 	   
 /* When everyone in the town has voted, someone is lynched */
 +voted_to_lynch(Day, Accuser, Player)
@@ -183,6 +223,8 @@ werewolves_have_won :-
 	   {
 	   	   /* The town could not reach an agreement, so nobody dies */
 	       print_env("The town could not reach an agreement, so nobody was lynched.");
+	       print_env("The town goes to sleep, hoping for the best.");
+	       !start_turn(Day + 1);
 	   } 
 	   else 
 	   {
@@ -196,10 +238,20 @@ werewolves_have_won :-
 	   	   print_env(DeadPlayer, " was lynched.");
 	   	   print_env("After inspecting the body it was determined that they were a ", Role, ".");
 	   	   .findall(Other, role(_, Other), Others);
-	   	   .send(Others, tell, dead(DeadPlayer, Role));
-	   };
-	   /* Send the town to sleep */
-	   print_env("The town goes to sleep, hoping for the best.")
+	   	   .send(Others, tell, dead(Day, day, DeadPlayer, Role));
+	   }.
+	   
+/* When all the players have finished updating their beliefs after someone was killed by werewolves  */
++ready(Day, night, _)
+	: everyone_ready(Day, night)
+	<- /* Wake everyone up */
+	   .findall(Other, role(_, Other), Others);
+	   .send(Others, tell, day(Day)).
+
+/* When all the players have finished updating their beliefs after someone was lynched */
++ready(Day, day, _)
+	: everyone_ready(Day, day)
+	<- print_env("The town goes to sleep, hoping for the best.");
 	   !start_turn(Day + 1).
 	   
 /* Tell to the fortune_teller the true personality of a Player */
@@ -207,3 +259,22 @@ werewolves_have_won :-
 	:true
 	<- ?role(Role, Player);
 	   .send(fortune_teller, tell, true_identity(Player, Role)).
+
+/*
+ * Reset the game
+ */
+ +!reset(Winner, Rounds)
+	<- .abolish(required_players(_));
+	   .abolish(role(_, _));
+	   .abolish(voted_to_eliminate(_, _, _));
+	   .abolish(voted_to_lynch(_, _, _));
+	   .abolish(ready(_, _, _));
+	   .all_names(Agents);
+	   for (.member(X, Agents)) {
+	       if (not X == game_coordinator) {
+	           .kill_agent(X);
+	       }	
+	   };
+	   .abolish(setup);
+	   end_game(Winner, Rounds);
+	   !setup_game.
