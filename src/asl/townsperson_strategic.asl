@@ -166,3 +166,9 @@ living_werewolves(2).
 	       add_player_thought(Me, X, " has voted to lynch ", Player, " in the past and ", Player, " was a townsperson. ", X, " may be a werewolf.");
 	   };
 	   .send(game_coordinator, tell, ready(Day, Period, Me)).
+	   
+/* Required for interoperability */
++vote_for_in_exchange(Day, Accuser, Accused, Promised)
+	<- /* Reject the plan straight away */
+	   .my_name(Me);
+	   .send(Accuser, tell, reject_vote_for_in_exchange(Day, Me, Accused, Promised)).
