@@ -103,4 +103,10 @@ is_a_townsperson(Player) :-
 		.abolish(player(Player));
 		.abolish(everyone(Player));
 		.my_name(Me);
-	   	.send(game_coordinator, tell, ready(Day, Period, Me)).  	
+	   	.send(game_coordinator, tell, ready(Day, Period, Me)).  
+	   	
+/* Required for interoperability */
++vote_for_in_exchange(Day, Accuser, Accused, Promised)
+	<- /* Reject the plan straight away */
+	   .my_name(Me);
+	   .send(Accuser, tell, reject_vote_for_in_exchange(Day, Me, Accused, Promised)).	
