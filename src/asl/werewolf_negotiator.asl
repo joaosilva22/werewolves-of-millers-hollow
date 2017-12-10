@@ -7,8 +7,8 @@ finished_negotiations(Day) :-
 	.count(player(_), CntTownsfolk) &
 	.count(werewolf(_), CntWerewolves) &
 	CntPlayers = CntTownsfolk + CntWerewolves &
-	.findall(Name, utility(Day, _, Name, _, _), Names) &
-	.print("(CntNegotiations =", CntNegotiations, " CntPlayers=", CntPlayers, " Names=", Names) &
+	//.findall(Name, utility(Day, _, Name, _, _), Names) &
+	//.print("(CntNegotiations -1)=", CntNegotiations - 1, " CntPlayers=", CntPlayers, " Names=", Names) &
 	CntNegotiations - 1 == CntPlayers.
 
 /* Initial goals */
@@ -43,11 +43,18 @@ finished_negotiations(Day) :-
 	
 /* Wake up during the night*/
 +night(Day)
+	: .random(N) & N >= 0.1
 	<- .my_name(Me);
 	   .print(Me, " wakes up.");
-	   .findall(Probability, townsperson(_, Probability), Probabilities);
-	   .max(Probabilities, Prob);
-	   ?townsperson(Player, Prob);
+	   .findall([Name, Probability], townsperson(Name, Probability), Probabilities);
+	   lib.select_max_or_random(Probabilities, Player);
+	   .send(game_coordinator, tell, voted_to_eliminate(Day, Me, Player)).
+	  
+/* Sometimes vote sub-optimally to avoid locks */
++night(Day)
+	<- .my_name(Me);
+	   .findall(Name, player(Name), Players);
+	   werewolves_of_millers_hollow.actions.random_player(Players, Player);
 	   .send(game_coordinator, tell, voted_to_eliminate(Day, Me, Player)).
 	   
 /* Update probabilities of eliminate a werewolf*/	
@@ -56,10 +63,10 @@ finished_negotiations(Day) :-
 +voted_to_lynch(_,Accuser, Accused)
 	: my_name(Accused)
 	<- ?townsperson(Accuser, Probability);
-		UpdatedProbability = Probability + 0.1;
-		.abolish(townsperson(Accuser, _));
-		+townsperson(Accuser, UpdatedProbability);
-		/* Add thought proccess to the gui */
+	   UpdatedProbability = Probability + 0.1;
+	   .abolish(townsperson(Accuser, _));
+	   +townsperson(Accuser, UpdatedProbability);
+	   /* Add thought proccess to the gui */
 	   .my_name(Me);
 	   update_beliefs_in_townsfolk(Me, Accuser, UpdatedProbability);
 	   add_player_thought(Me, Accuser, " has voted to lynch ", Accused, "so it is possible that he knows that he is a werewolf").
@@ -68,13 +75,13 @@ finished_negotiations(Day) :-
 +voted_to_lynch(_, Accuser, Accused)
 	: werewolf(Accused)
 	<- ?townsperson(Accuser, Probability);
-		UpdatedProbability = Probability + 0.2;
-		.abolish(townsperson(Accuser, _));
-		+townsperson(Accuser, UpdatedProbability);
-		/* Add thought proccess to the gui */
-		.my_name(Me);
-	   	update_beliefs_in_townsfolk(Me, Accuser, UpdatedProbability);
-	   	add_player_thought(Me, Accuser, " has voted to lynch me, so it is possible that he knows that I am a werewolf").	
+	   UpdatedProbability = Probability + 0.2;
+	   .abolish(townsperson(Accuser, _));
+	   +townsperson(Accuser, UpdatedProbability);
+	   /* Add thought proccess to the gui */
+	   .my_name(Me);
+	   update_beliefs_in_townsfolk(Me, Accuser, UpdatedProbability);
+	   add_player_thought(Me, Accuser, " has voted to lynch me, so it is possible that he knows that I am a werewolf").	
 				   
 /* a townsperson accuse another one */	
 /*			   
@@ -118,17 +125,22 @@ finished_negotiations(Day) :-
 
 /* Wake up in the morning */
 +day(Day)
-	<- !negotiate(Day).
+	<- .my_name(Me);
+	   .print(Me, " wakes up.");
+	   !negotiate(Day).
 	
 /* Negotiate */
 +!negotiate(Day)
 	/* TODO(jp): Precondition to choose this plan over the others */
 	<- !appeal_to_authority(Day).
 	
+/*
+ * Appeal to authority 
+ */
+	
 /* Start an appeal to authority */
 +!appeal_to_authority(Day)
-	<- .print("Dealin' & Appealin'");
-	   .my_name(Me);
+	<- .my_name(Me);
 	   /* Select the player that is most suspicious of the werewolves */
 	   .findall(Probability, townsperson(_, Probability), Probabilities);
 	   .max(Probabilities, Prob);
@@ -137,10 +149,12 @@ finished_negotiations(Day) :-
 	   .findall(Name, player(Name), Players);
 	   .send(Players, tell, vote_for(Day, Me, Player, Prob));
 	   .findall(Werewolf, werewolf(Werewolf), Werewolves);
+	   .print("Sending vote for to Werewolves=", Werewolves);
 	   .send(Werewolves, tell, vote_for(Day, Me, Player, Prob));
 	   /* Estimate the utility of its own plan */
 	   Utility = Prob;
-	   +utility(Day, appeal_to_authority, Me, Player, Utility).
+	   +utility(Day, appeal_to_authority, Me, Player, Utility);
+	   !decide(Day).
 
 /* Stub for non-negotiating agents */
 +vote_for(Day, Accuser, Accused, -1)
@@ -164,7 +178,19 @@ finished_negotiations(Day) :-
 +vote_for(Day, Accuser, Accused, AccuserCertainty)
 	<- +utility(Day, appeal_to_authority, Accuser, Accused, -1.0);
 	   !decide(Day).
-	
+	   
+/* 
+ * Promise of future reward 
+ */
+ 
+/* When receiving a request to vote that is not good */
++vote_for_in_exchange(Day, Accuser, Accused, Promised)
+	<- +utility(Day, promise_of_future_reward, Accuser, Accused, -1.0);
+	   /* Reject the plan straight away */
+	   .my_name(Me);
+	   .send(Accuser, tell, reject_vote_for_in_exchange(Day, Me, Accused, Promised));
+	   !decide(Day).
+	   
 /* Make a decision */
 +!decide(Day) : not finished_negotiations(Day).
 +!decide(Day)
@@ -175,7 +201,6 @@ finished_negotiations(Day) :-
 	   lib.max_utility(Utilities, MaxUtility);
 	   ?utility(Day, _, Accuser, Accused, MaxUtility);
 	   /* Vote to lynch the player */
-	   .print("I'ma vote for ", Accused);
 	   add_player_thought(Me, Accuser, " has told me that ", Accused, " is a werewolf. Let him keep believing that.");
 	   .send(game_coordinator, tell, voted_to_lynch(Day, Me, Accused));
 	   /* Tell everyone else who the player is voting for */
