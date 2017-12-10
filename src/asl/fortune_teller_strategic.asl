@@ -37,12 +37,18 @@
 
 /* Ask the coordinator for the true identity of a player */
 +!find_true_personality(Day)
-	: .findall(Prob, werewolf(_,null,Prob), Probabilities) & .length(Probabilities,Cnt) & Cnt > 0
+	: .findall(Prob, werewolf(_,null,Prob), Probabilities) & .length(Probabilities,Cnt) & Cnt > 0 & .findall(N, werewolf(N,null,0), P2) & .length(P2, P2Size) & not (P2Size == Cnt)
 	<- .my_name(Me); 
+	   .print("I already have some knowledge");
 	   .max(Probabilities, HighestProb);
 	   ?werewolf(Player,null,HighestProb);
 	   .send(game_coordinator,achieve,tell_personality(Player, Me)).
-	   
++!find_true_personality(Day)
+	: .findall(Prob, werewolf(_,null,Prob), Probabilities) & .length(Probabilities,Cnt) & Cnt > 0 & .findall(N, werewolf(N,null,0), P2) & .length(P2, P2Size) & P2Size == Cnt
+	<- .my_name(Me); 
+	   .print("begin");
+	   werewolves_of_millers_hollow.actions.random_player(P2, Player);
+	   .send(game_coordinator,achieve,tell_personality(Player, Me)).	   
 +!find_true_personality(Day)
 	<- .print("I already know the true personality of everyone").
 					   
