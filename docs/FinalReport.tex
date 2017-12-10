@@ -218,37 +218,58 @@ This agent has the following characteristics:
 	\item \textbf{werewolf} - add others werewolves to the player database, knowing who are the others werewolves playing;
 	\item \textbf{player} - add the townsfolk players and beliefs to the player database, knowing who are the enemies that are playing;
 	\item \textbf{night} - wake up during the night turn and votes on the townsperson that the player believes to be reasonably sure of knowing a werewolf true identity;
-	\item \textbf{day} -wake up during the day turn and votes on the townsperson that the player believes to be reasonably sure of knowing a werewolf true identity;
+	\item \textbf{day} - wake up during the day turn and votes on the townsperson that the player believes to be reasonably sure of knowing a werewolf true identity;
 	\item \textbf{voted\_to\_lynch} - updates the players beliefs taking into account the townsfolk votes;
 	\item \textbf{dead} - deleted dead players from the player and beliefs database.
 \end{itemize}
 
-\subsubsection{fortune\_teller agent}
+\subsubsection{fortune\_teller\_random agent}
 This agent makes part of the townsfolk team and has the role of helping them to know who the werewolves are. With the special action of seeing the true identity of a player before every day turn.
 It has the following characteristics:
 \begin{itemize}
 	\item \textbf{alive} - initial state, the fortune\_teller believes that is alive;
-	\item \textbf{player} - add others players and beliefs to the player database;
+	\item \textbf{everyone} - will have all the players in game;
 	\item \textbf{townsperson} - knows that a specific player is a townsperson;
 	\item \textbf{werewolf} - knows that a specific player is a werewolf;
-	\item \textbf{day} - knows that is the day turn;
+	\item \textbf{day} - wake up during the day turn and votes on the player that he believes to be a werewolf;
 	\item \textbf{find\_true\_identity} - asks the coordinator\_game agent the true identity of a player;
 	\item \textbf{true\_identity} - receives the answer from the coordinator\_game agent with the true identity of the player;
-	\item \textbf{vote} - votes on a werewolf if the player already knows one or on a player that has the highest belief of being a werewolf;
+	\item \textbf{voted\_to\_lynch} - updates the players beliefs taking into account the all votes;
 	\item \textbf{dead} - delete dead players from the player and beliefs database.
-\end{itemize} 
+\end{itemize}
+
+\subsubsection{fortune\_teller\_strategic agent}
+This agent is similar to the fortune\_teller\_random, but with a difference, it is added the probability of a player be a werewolf or a townsperson.
+On this agent there is a difference on the organization of the believes on townspersons and werewolves:
+\newline
+\centerline{\textbf{(Name, Type, Probability)}}
+\begin{itemize}
+	\item \textbf{Name} - is the name of the player
+	\item \textbf{Type} - can be:
+	 \begin{description}
+		 \item \textbf{null} - if I am not 100\% sure of is true identity
+		 \item \textbf{false} -  If I am 100\% sure of is true identity and it is not on this believe (Ex: werewolf(townsperson1,false,\_) it means that I am 100 \% sure that townsperson1 is not a werewolf) 														
+		 \item \textbf{true} -  If I am 100\% sure of is true identity and it is on this believe (Ex: werewolf(werewolf1,true,\_) it means that I am 100 \% sure that werewolf1 is a werewolf)
+		\end{description}
+	\item \textbf{Probability} - it is the probability of a player be what i believe
+\end{itemize}
+													
+It has the following characteristics:
+\begin{itemize}
+	\item \textbf{alive} - initial state, the fortune\_teller believes that is alive;
+	\item \textbf{everyone} - will have all the players in game;
+	\item \textbf{townsperson} - has the belief of a determined player be a townsperson;
+	\item \textbf{werewolf} - has the belief of a determined player be a werewolf;
+	\item \textbf{day} - wake up during the day turn and votes on the player that he believes to be a werewolf;
+	\item \textbf{find\_true\_identity} - asks the coordinator\_game agent the true identity of a player;
+	\item \textbf{true\_identity} - receives the answer from the coordinator\_game agent with the true identity of the player;
+	\item \textbf{voted\_to\_lynch} - updates the players beliefs taking into account the all votes;
+	\item \textbf{dead} - delete dead players from the player and beliefs database.
+\end{itemize}  
 \subsection{Interaction Protocols}
 
 \section{Development}
 \subsection{Platform/Tool}
-\subsubsection{JADE}
-\textbf{What it is used for}\newline
-It simplifies the implementation of multi-agent systems through a middle-ware that complies with the FIPA(\textit{Foundation for Intelligent Physical Agents}) specifications.
-\newline\textbf{Description of the main characteristics}\newline
-JADE is an open source software fully implemented in JAVA. It allows to distribute agents across machines and the configuration can be controlled via a remote GUI. It also can be changed at run-time by moving agents to another machine. Each agent in JADE can have behaviours, that are tasks.
-Another characteristics of JADE is the communication between agents.
-\newline\textbf{Highlight of the main features for the work}\newline
-For this work, JADE provides comunication peer-to-peer between agents and also the creation of some behaviours
 \subsubsection{Jason}
 \textbf{What it is used for}\newline
 Jason is a platform for the development of multi-agent systems. It is an interpreter for an extended version of AgentSpeak.
@@ -290,7 +311,8 @@ The \textit{werewolves\_of\_miller\_hollow} application is structured in 3 main 
 	\item src\textbackslash asl
 	\begin{itemize}
 		\item game\_coordinator agent;
-		\item fortune\_teller agent;
+		\item fortune\_teller\_random agent;
+		\item fortune\_teller\_strategic agent;
 		\item townsperson\_random agent;
 		\item townsperson\_negotiator agent;
 		\item townsperson\_strategic agent;
@@ -334,9 +356,6 @@ In the main interface it is possible to visualize different aspects of the game,
 \subsection{Software}
 Eclipse \par
 \url{http://www.eclipse.org/} \par
-\vspace{3mm}
-JADE \par
-\url{http://jade.tilab.com/} \par 
 \vspace{3mm}
 Jason \par
 \url{http://Jason.sourceforge.net/wp/} \par 
