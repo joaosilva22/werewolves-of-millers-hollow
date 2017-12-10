@@ -43,7 +43,7 @@ finished_negotiations(Day) :-
 	
 /* Wake up during the night*/
 +night(Day)
-	: .rand(N) & N >= 0.1
+	: .random(N) & N >= 0.1
 	<- .my_name(Me);
 	   .print(Me, " wakes up.");
 	   .findall([Name, Probability], townsperson(Name, Probability), Probabilities);
@@ -201,7 +201,6 @@ finished_negotiations(Day) :-
 	   lib.max_utility(Utilities, MaxUtility);
 	   ?utility(Day, _, Accuser, Accused, MaxUtility);
 	   /* Vote to lynch the player */
-	   .print("I'ma vote for ", Accused, " because ", Accuser, " told me to MaxUtility=", MaxUtility);
 	   add_player_thought(Me, Accuser, " has told me that ", Accused, " is a werewolf. Let him keep believing that.");
 	   .send(game_coordinator, tell, voted_to_lynch(Day, Me, Accused));
 	   /* Tell everyone else who the player is voting for */

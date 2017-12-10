@@ -10,6 +10,7 @@ public class max_utility extends DefaultInternalAction {
 
 	@Override
 	public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {
+		System.out.println("LIST=" + args[0]);
 		ListTerm list = (ListTerm) args[0];
 		Term result = list.get(0);
 		float max = -1000.0f;

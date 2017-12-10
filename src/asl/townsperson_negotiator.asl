@@ -123,6 +123,8 @@ finished_negotiations(Day) :-
 	       /* Add thought proccess to the gui */
 	       add_player_thought(Me, X, " has voted to lynch ", Player, " in the past and ", Player, " was a werewolf. ", X, " may be a townsperson.");
 	   };
+	   /* Remove votes for player eliminated after updating the beliefs */
+	   //.abolish(voted_to_lynch(_, _, Player));
 	   .send(game_coordinator, tell, ready(Day, Period, Me)).
 	   
 /* When another player has been eliminated from the game */
@@ -150,6 +152,8 @@ finished_negotiations(Day) :-
 	       /* Add thought proccess to the gui */
 	       add_player_thought(Me, X, " has voted to lynch ", Player, " in the past and ", Player, " was a townsperson. ", X, " may be a werewolf.");
 	   };
+	   /* Remove votes for player eliminated after updating the beliefs */
+	   //.abolish(voted_to_lynch(_, _, Player));
 	   .send(game_coordinator, tell, ready(Day, Period, Me)).
 	   
 /* When does negotiation happen?
@@ -200,12 +204,12 @@ finished_negotiations(Day) :-
 	   
 /* Begin a negotiation */
 +!negotiate(Day)
+	: .random(R) & R > 0.5 & Day > 1
+	<- !promise_of_future_reward(Day).
+
++!negotiate(Day)
 	/* TODO(jp): Precondition to choose this plan over the others */
-	// : Day < 2
 	<- !appeal_to_authority(Day).
-	
-//+!negotiate(Day)
-//	<- !promise_of_future_reward(Day).
 	
 /*
  * Appeal to authority
@@ -223,7 +227,7 @@ finished_negotiations(Day) :-
 	   .send(Players, tell, vote_for(Day, Me, Player, MaxCertainty));
 	   /* Estimate the utility of its own plan */
 	   Utility = MaxCertainty;
-	   +utility(Day, appeal_to_authority, Me, Player, Utility);
+	   +utility(Day, own_decision, Me, Player, Utility);
 	   !decide(Day).
 	   
 /* Stub for non-negotiating agents */
@@ -260,24 +264,27 @@ finished_negotiations(Day) :-
 /* Start a promise of future reward */
 +!promise_of_future_reward(Day)
 	: not engaged_in_promise_negotiation(Day)
-	<- /* Agent becomes engaged in its own promise negotiation */
+	<- .my_name(Me);
+	   /* Agent becomes engaged in its own promise negotiation */
 	   +engaged_in_promise_negotiation(Day)
 	   /* Select the player that is most likely a werewolf */
 	   .findall([Werewolf, Certainty], werewolf(Werewolf, Certainty), Certainties);
 	   lib.select_max_or_random(Certainties, Player);
 	   /* Select the player that is trying the hardest to eliminate another */
 	   .findall([Accuser, Accused], voted_to_lynch(_, Accuser, Accused), Votes);
-	   lib.select_most_common_or_random(Votes, [Accuser, Accused]);
+	   lib.remove_player_from_vote_list(Me, Votes, FilteredVotes);
+	   lib.select_most_common_or_random(FilteredVotes, [Accuser, Accused]);
 	   .print("I'm promising ", Accuser, " that I will vote for ", Accused, " if he votes for ", Player, " (Votes=", Votes, ")");
 	   /* Send the request to the target player */
-	   .my_name(Me);
 	   .send(Accuser, tell, vote_for_in_exchange(Day, Me, Player, Accused));
-	   /* Store my own request */
-	   +vote_for_in_exchange(Day, Me, Player, Accused);
+	   /* Store my own request
+	   +vote_for_in_exchange(Day, Me, Player, Accused); */
 	   /* Send an empty vote_for request to the others */
 	   .findall(Name, player(Name), Others);
 	   for (.member(Other, Others)) {
-	       .send(Other, tell, vote_for(Day, Accuser, Accused, -1));
+	       if (not Other == Accuser) {
+	       	   .send(Other, tell, vote_for(Day, Me, Accused, -1));
+	       }
 	   }.
 	   
 /* If the player is already engaged in a promise negotiation */
@@ -289,24 +296,26 @@ finished_negotiations(Day) :-
 /* When receiving a promise of future reward */
 +vote_for_in_exchange(Day, Accuser, Accused, Promised)
 	: /* If the player is not the accuser or being accused */
-	  not .my_name(Accused) & not .my_name(Accuser) &
+	  not .my_name(Accused) & not .my_name(Accuser) & werewolf(Promised, _) &
 	  /* And the accuser is trustworthy */
 	  werewolf(Accuser, Distrust) & Distrust <= 0.3 &
 	  /* And the accused is untrustworthy */
-	  townsfolk(Accused, Trust) & Trust <= 0.3 &
+	  townsperson(Accused, Trust) & Trust <= 0.3 &
 	  /* If I'm not engaged in a promise negotiation */
 	  not engaged_in_promise_negotiation(Day)
 	<- /* Agent becomes engaged in a promise negotiation */
-	   +engaged_in_promise_negotaition(Day);
+	   +engaged_in_promise_negotiation(Day);
 	   /* Calculate the utility of the plan */
 	   ?werewolf(Promised, PromisedDistrust);
 	   Utility = Distrust + PromisedDistrust;
-	   .print(Accuser, " is promising me to vote for ", Promised, " if I vote for ", Accused);
-	   +utility(Day, promise_of_future_reward, Accuser, Accused, Utility).
+	   .print("Utility of accepting the promise proposal=", Utility);
+	   +utility(Day, promise_of_future_reward, Accuser, Accused, Utility);
+	   !decide(Day).
 	   /* TODO(jp): Remember that the accuser has promised to vote for Promised */
 	
-/* When receiving a vote_for_in_exchange from itself do nothing */
-+vote_for_in_exchange(Day, Accuser, Accused, Promised) : .my_name(Accuser).
+/* When receiving a vote_for_in_exchange from itself do nothing 
++vote_for_in_exchange(Day, Accuser, Accused, Promised) 
+	: .my_name(Accuser). */
 	
 /* When receiving a request to vote that is not good */
 +vote_for_in_exchange(Day, Accuser, Accused, Promised)
@@ -318,33 +327,39 @@ finished_negotiations(Day) :-
 	   
 /* When the promise was accepted */
 +accept_vote_for_in_exchange(Day, Partner, Accused, Promised)
-	<- /* Calculate the utility of this plan */
+	<- .print(Partner, " has accepted my proposal");
+	   /* Calculate the utility of this plan */
 	   ?werewolf(Accused, UtilityAccused);
 	   ?werewolf(Promised, UtilityPromised);
+	   .print("UtilityAccused=", UtilityAccused, " UtilityPromised=", UtilityPromised);
 	   Utility = UtilityAccused + UtilityPromised;
 	   .my_name(Me);
-	   +utility(Day, promise_of_future_reward, Me, Accused, Utility);
+	   +utility(Day, own_decision, Me, Accused, Utility);
 	   !decide(Day).
 	   
 /* When the promise was rejected */
 +reject_vote_for_in_exchange(Day, Partner, Accused, Promised)
-	<- /* Calculate the utility of this plan */
+	<- .print(Partner, " has refused my proposal");
+	   /* Calculate the utility of this plan */
 	   ?werewolf(Accused, Utility);
 	   .my_name(Me);
-	   +utility(Day, promise_of_future_reward, Me, Accused, Utility);
+	   +utility(Day, own_decision, Me, Accused, Utility);
 	   !decide(Day).
 
 /* Make a decision */
 +!decide(Day) : not finished_negotiations(Day).
++!decide(Day) : finished_negotiations(Day) & decided(Day).
 +!decide(Day)
-	: finished_negotiations(Day)
-	<- .my_name(Me);
+	: finished_negotiations(Day) & not decided(Day)
+	<- +decided(Day);
+	   .my_name(Me);
 	   /* Select the plan with the most utility */
 	   .findall(Utility, utility(Day, _, _, _, Utility), Utilities);
 	   lib.max_utility(Utilities, MaxUtility);
 	   ?utility(Day, Type, Accuser, Accused, MaxUtility);
 	   /* If the type is a promise of future reward, then accept the promise */
 	   if (Type == promise_of_future_reward) {
+	   	   .print("I'm accepting ", Accuser, "'s proposal");
 	       ?vote_for_in_exchange(Day, Accuser, Accused, Promised);
 	       .send(Accuser, tell, accept_vote_for_in_exchange(Day, Me, Accused, Promised));
 	       add_player_thought(Me, Accuser, " has promised me that he will vote for ", Promised, " next round if I vote for ", Accused, " now. I'm accepting his proposal.");
@@ -352,9 +367,21 @@ finished_negotiations(Day) :-
 	   if (Type == appeal_to_authority) {
 	   	   add_player_thought(Me, Accuser, " has told me that ", Accused, " is a werewolf. I believe him.");
 	   };
+	   if (Type == own_decision) {
+	   	   .print("I've decided to vote for ", Accused);
+	   	   add_player_thought(Me, "I've decided to vote for ", Accused, ".");
+	   };
 	   /* Vote to lynch the player */
-	   .print("I'ma vote for ", Accused);
 	   .send(game_coordinator, tell, voted_to_lynch(Day, Me, Accused));
 	   /* Tell everyone else who the player is voting for */
 	   .findall(Name, player(Name), Players);
-	   .send(Players, tell, voted_to_lynch(Day, Me, Accused)).
+	   .send(Players, tell, voted_to_lynch(Day, Me, Accused));
+	   /* TODO(jp): Reject pending proposals */
+	   .findall(O, vote_for_in_exchange(Day, O, _, _), Os);
+	   for (.member(Other, Os)) {
+	       if (not Other == Accuser) {
+	       	   .print("Rejecting proposal of ", Other);
+	           ?vote_for_in_exchange(Day, Other, Acc, Pro);
+	           .send(Other, tell, reject_vote_for_in_exchange(Day, Me, Acc, Pro));
+	       }	
+	   }.

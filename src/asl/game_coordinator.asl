@@ -245,6 +245,10 @@ werewolves_have_won :-
 	   	   .send(Others, tell, dead(Day, day, DeadPlayer, Role));
 	   }.
 	   
++voted_to_lynch(Day, Accuser, Player)
+	<- .findall(Vote, voted_to_lynch(Day, Vote, _), Votes);
+	   .print("VOTES_SO_FAR=", Votes).
+	   
 /* When all the players have finished updating their beliefs after someone was killed by werewolves  */
 +ready(Day, night, _)
 	: everyone_ready(Day, night)
