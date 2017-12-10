@@ -117,7 +117,7 @@ werewolves_have_won :-
 +!inform_fortune_teller([[_,Player]|T])
 	: setup
 	<- .findall(Name, role(fortune_teller, Name), Fortune_Tellers);
-	   .send(Fortune_Tellers, tell, player(Player));
+	   .send(Fortune_Tellers, tell, everyone(Player));
 	   !inform_fortune_teller(T).
 	
 		
