@@ -172,7 +172,7 @@ finished_negotiations(Day) :-
 	   .send(game_coordinator, tell, ready(Day, Period, Me)).
 	   
 /* When another player has been eliminated from the game */
-+dead(Day, Period, Player, townsperson)
++dead(Day, Period, Player, _)
     : not .my_name(Player)
 	<- /* Delete the player from the database */
 	   /* TODO(jp): Abstract this away */

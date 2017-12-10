@@ -11,6 +11,13 @@ finished_negotiations(Day) :-
 	//.print("(CntNegotiations -1)=", CntNegotiations - 1, " CntPlayers=", CntPlayers, " Names=", Names) &
 	CntNegotiations - 1 == CntPlayers.
 
+all_werewolves_comunicated(Day) :-
+	 .count(townsperson_to_eliminate(Day,_,_,_,_), CntVotes) &
+	 .count(werewolf(_), CntWerewolves) &
+	 .print("Cntvotes = ", CntVotes, " CntWerewolves = ", CntWerewolves) &
+	 CntVotes == CntWerewolves.
+ 	
+
 /* Initial goals */
 !join_game(game_coordinator).
 
@@ -33,8 +40,7 @@ finished_negotiations(Day) :-
 	
 /* Add townsperson to beliefs */
 +player(Player)
-	: not werewolf(Player)
-	<- 	+townsperson(Player, 0.0);
+	<-	+townsperson(Player, 0.0);
 		.print("I've learned that ", Player, " is playing the game.").
 	
 /*
@@ -83,22 +89,20 @@ finished_negotiations(Day) :-
 	   update_beliefs_in_townsfolk(Me, Accuser, UpdatedProbability);
 	   add_player_thought(Me, Accuser, " has voted to lynch me, so it is possible that he knows that I am a werewolf").	
 				   
-/* a townsperson accuse another one */	
-/*			   
+/* a townsperson accuse another one */		
 +voted_to_lynch(_, Accuser, Accused)
-	: townsperson(Accused,AccusedProb) & townsperson(Accuser,AccuserProb) & AccusedProb > 0 & AccuserProb > 0
-	<- ?townsperson(Accuser, Probability);
-		UpdatedProbability = Probability - 0.1;
-		-+townsperson(Accuser, UpdatedProbability);
-		?townsperson(Accused, Prob);
-		NewProbability = Prob - 0.1;
-		-+townsperson(Accused, NewProbability);
-		Add thought proccess to the gui
+	: townsperson(Accused,AccusedProb) & townsperson(Accuser,AccuserProb) & AccusedProb > 0.1 & AccuserProb > 0.1
+	<-  UpdatedProbability = AccuserProb - 0.1;
+		.abolish(townsperson(Accuser, _));
+		+townsperson(Accuser, UpdatedProbability);
+		NewProbability = AccusedProb - 0.1;
+		.abolish(townsperson(Accused, _));
+		+townsperson(Accused, NewProbability);
+		/* Add thought proccess to the gui */
 		.my_name(Me);	
 		update_beliefs_in_townsfolk(Me, Accuser, UpdatedProbability);
 		update_beliefs_in_townsfolk(Me, Accused, NewProbability);
-		add_player_thought(Me, Accuser, " has voted to lynch ", Accused, "so it is possible that he believes that ", Accused ," is a werewolf, so i should let him believe that").			   
-*/
+		add_player_thought(Me, Accuser, " has voted to lynch ", Accused, "so it is possible that he believes that ", Accused ," is a werewolf, so i should let him believe that").
 			   
 /* Remove eliminated player from database */
 +dead(Day, Period, Player, Role)
@@ -110,7 +114,7 @@ finished_negotiations(Day) :-
 	   .abolish(werewolf(Player));
 	   .my_name(Me);
 	   .send(game_coordinator, tell, ready(Day, Period, Me)).
-+dead(Day, Period, Player, townsperson)
++dead(Day, Period, Player, _)
 	: alive
 	<- .print(Player, " has died.");
 	   .abolish(townsperson(Player, _));

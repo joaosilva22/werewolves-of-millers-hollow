@@ -10,6 +10,16 @@ alive.
 	<- .send(Coordinator, tell, role(werewolf, Me)).
 	
 /*
+ * Rules 
+ */
+ 	
+all_werewolves_comunicated(Day) :-
+	 .count(townsperson_to_eliminate(Day,_,_,_,_), CntVotes) &
+	 .count(werewolf(_), CntWerewolves) &
+	 .print("Cntvotes = ", CntVotes, " CntWerewolves = ", CntWerewolves) &
+	 CntVotes == CntWerewolves.
+ 	
+/*
  * Game setup
  */
 
@@ -23,8 +33,8 @@ alive.
 	
 /* Add townsperson to beliefs */
 +player(Player)
-	<- 	+townsperson(Player, 0.0);
-		.my_name(Me);
+	<- 	.random(Random_Number);
+		+townsperson(Player, Random_Number);
 		.print("I've learned that ", Player, " is playing the game.").
 	
 /*
@@ -37,34 +47,73 @@ alive.
 	   .print(Me, " wakes up.");
 	   .findall(Probability, townsperson(_, Probability), Probabilities);
 	   .max(Probabilities, Prob);
-	   ?townsperson(Player, Prob);
-	   .send(game_coordinator, tell, voted_to_eliminate(Day, Me, Player)).
+	   .print("My max: ", Prob);
+	   ?townsperson(Name, Prob);
+	   .findall(Werewolf_Name, werewolf(Werewolf_Name), Werewolves);
+	   .length(Werewolves, CntWerewolves);
+	   .findall(P, townsperson_to_eliminate(Day,_,_,P,-1), Ps);
+	   .length(Ps,CntVotes);
+	   if (CntWerewolves == 0 | (CntVotes == CntWerewolves))
+	   {
+	   	 .print(Me, " voted on " , Name);
+	   	 .send(game_coordinator, tell, voted_to_eliminate(Day, Me, Name));	
+	   }
+	   else
+	   {
+	  	 .send(Werewolves, tell, townsperson_to_eliminate(Day,Me,Name, Prob,0)); 	
+	   }.
+	  
+
 	   
++townsperson_to_eliminate(Day,From, Player, Pro, Type)
+	: all_werewolves_comunicated(Day)	   
+	<- .my_name(Me);
+	   .findall(Probability, townsperson(_, Probability), Probabilities);
+	   .max(Probabilities, Prob); 
+	   .findall(P, townsperson_to_eliminate(Day,_,_,P,0), Ps);
+	   .length(Ps, CntVotes);
+	   if (Prob > Communicated_Probability | CntVotes == 0) 
+	   {
+	   	?townsperson(Name, Prob);
+	   	.print(Me, " Voted on Townsperson_Name = ", Name);
+	   	.send(game_coordinator, tell, voted_to_eliminate(Day, Me, Name));	
+	   }
+	   else
+	   {
+	   	.max(Ps, Communicated_Probability);
+	   	?townsperson_to_eliminate(Day,_,Townsperson_Name,Communicated_Probability,0);
+	   	.print(Me, " Voted on Townsperson_Name = ", Townsperson_Name);
+	   	.send(game_coordinator, tell, voted_to_eliminate(Day, Me, Townsperson_Name));	
+	   }.
+	
 /* Wake up in the morning */
 +day(Day)
 	<- .my_name(Me);
 	   .findall(X, townsperson(X, _), Xs);
-	   .print("Xs=", Xs);
 	   .findall(Probability, townsperson(_, Probability), Probabilities);
 	   .max(Probabilities, Prob);
 	   ?townsperson(Player, Prob);
+	   .print(Me, " voted on " , Player);
 	   .send(game_coordinator, tell, voted_to_lynch(Day, Me, Player));
 	   /* Tell everyone else who the player is voting for */
-	   .findall(Name, player(Name), Players);
-	   .send(Players, tell, voted_to_lynch(Day, Me, Player));
+	   .findall(Name, townsperson(Name,_), Townspersons);
+	   .findall(Werewolf, werewolf(Werewolf), Werewolves);
+	   .send(Townspersons, tell, voted_to_lynch(Day, Me, Player));
+	   .send(Werewolves, tell, voted_to_lynch(Day, Me, Player));
 	   /* Necessary to interact with negotiating agents */
-	   .findall(Name, player(Name), Players);
+	   .findall(Player_Name, player(Player_Name), Players);
 	   .send(Players, tell, vote_for(Day, Me, Player, -1));
 	   .findall(Werewolf, werewolf(Werewolf), Werewolves);
 	   .send(Werewolves, tell, vote_for(Day, Me, Player, -1)).
 	   
-/* Update probabilities of eliminate a werewolf*/	
+
+	   
+/* Update probabilities of eliminate a werewolf*/	  
     
 /* I am being accused  */    
 +voted_to_lynch(_,Accuser, Accused)
-	: my_name(Accused)
-	<- ?townsperson(Accuser, Probability);
-		UpdatedProbability = Probability + 0.1;
+	: my_name(Accused) & townsperson(Accuser, Probability) & Probability < 0.9
+	<- 	UpdatedProbability = Probability + 0.1;
 		.abolish(townsperson(Accuser, _));
 		+townsperson(Accuser, UpdatedProbability);
 		/* Add thought proccess to the gui */
@@ -74,9 +123,8 @@ alive.
 
 /* A werewolf as been accused */		
 +voted_to_lynch(_, Accuser, Accused)
-	: werewolf(Accused)
-	<- ?townsperson(Accuser, Probability);
-		UpdatedProbability = Probability + 0.2;
+	: werewolf(Accused) & townsperson(Accuser, Probability) & Probability < 0.8
+	<- 	UpdatedProbability = Probability + 0.2;
 		.abolish(townsperson(Accuser, _));
 		+townsperson(Accuser, UpdatedProbability);
 		/* Add thought proccess to the gui */
@@ -85,21 +133,20 @@ alive.
 	   	add_player_thought(Me, Accuser, " has voted to lynch me, so it is possible that he knows that I am a werewolf").	
 				   
 /* a townsperson accuse another one */	
-/*			   
 +voted_to_lynch(_, Accuser, Accused)
-	: townsperson(Accused,AccusedProb) & townsperson(Accuser,AccuserProb) & AccusedProb > 0 & AccuserProb > 0
-	<- ?townsperson(Accuser, Probability);
-		UpdatedProbability = Probability - 0.1;
-		-+townsperson(Accuser, UpdatedProbability);
-		?townsperson(Accused, Prob);
-		NewProbability = Prob - 0.1;
-		-+townsperson(Accused, NewProbability);
-		Add thought proccess to the gui
+	: townsperson(Accused,AccusedProb) & townsperson(Accuser,AccuserProb) & AccusedProb > 0.1 & AccuserProb > 0.1
+	<-  UpdatedProbability = AccuserProb - 0.1;
+		.abolish(townsperson(Accuser, _));
+		+townsperson(Accuser, UpdatedProbability);
+		NewProbability = AccusedProb - 0.1;
+		.abolish(townsperson(Accused, _));
+		+townsperson(Accused, NewProbability);
+		/* Add thought proccess to the gui */
 		.my_name(Me);	
 		update_beliefs_in_townsfolk(Me, Accuser, UpdatedProbability);
 		update_beliefs_in_townsfolk(Me, Accused, NewProbability);
 		add_player_thought(Me, Accuser, " has voted to lynch ", Accused, "so it is possible that he believes that ", Accused ," is a werewolf, so i should let him believe that").			   
-*/
+
 			   
 /* Remove eliminated player from database */
 +dead(Day, Period, Player, Role)
@@ -111,7 +158,7 @@ alive.
 	   .abolish(werewolf(Player));
 	   .my_name(Me);
 	   .send(game_coordinator, tell, ready(Day, Period, Me)).
-+dead(Day, Period, Player, townsperson)
++dead(Day, Period, Player, _)
 	: alive
 	<- .print(Player, " has died.");
 	   .abolish(townsperson(Player, _));
