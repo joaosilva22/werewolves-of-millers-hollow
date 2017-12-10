@@ -60,16 +60,31 @@ finished_negotiations(Day) :-
 /* TODO(jp): See (1) */
 
 /* When the player is accused of being a werewolf */
-+voted_to_lynch(_, Accuser, Accused)
++voted_to_lynch(Day, Accuser, Accused)
 	: .my_name(Accused)
 	<- /* The accuser becomes more suspect */
 	   ?werewolf(Accuser, Certainty);
 	   UpdatedCertainty = Certainty + 0.1;
 	   .abolish(werewolf(Accuser, _));
-	   +werewolf(Accuser, UpdatedCertainty).
+	   +werewolf(Accuser, UpdatedCertainty);
+	   /* Check if accuser is breaking any promises */
+	   .findall(Name, promised_to_vote_for(Day, Accuser, Name), Promises);
+	   .print("Day=", Day, "Promises=", Promises);
+	   for (.member(Promise, Promises)) {
+	       if (not Promise == Accused) {
+	       	   /* Update beliefs */
+	           ?werewolf(Accuser, C);
+	           UC = C + 0.1;
+	   		   .abolish(werewolf(Accuser, _));
+	   		   +werewolf(Accuser, UC);
+	   		   /* Add thought proccess to the gui */
+	   		   .my_name(Me);
+	   		   add_player_thought(Me, Accuser, " has broken a promise he made to me. He may be a werewolf.");
+	       }    
+	   }.
 	   
 /* When the player believes the accused is a townsperson */
-+voted_to_lynch(_, Accuser, Accused)
++voted_to_lynch(Day, Accuser, Accused)
 	: townsperson(Accused, Certainty) & Certainty >= 0.3
 	<- /* The accuser becomes more suspect */
 	   ?werewolf(Accuser, OldCertainty);
@@ -78,10 +93,24 @@ finished_negotiations(Day) :-
 	   +werewolf(Accuser, UpdatedCertainty);
 	   /* Add thought proccess to the gui */
 	   .my_name(Me);
-	   add_player_thought(Me, Accuser, " has voted to lynch ", Accused, " but I think ", Accused, " is a townsperson. ", Accuser, " may be a werewolf.").
+	   add_player_thought(Me, Accuser, " has voted to lynch ", Accused, " but I think ", Accused, " is a townsperson. ", Accuser, " may be a werewolf.");
+	   /* Check if accuser is breaking any promises */
+	   .findall(Name, promised_to_vote_for(Day, Accuser, Name), Promises);
+	   .print("Day=", Day, "Promises=", Promises);
+	   for (.member(Promise, Promises)) {
+	       if (not Promise == Accused) {
+	       	   /* Update beliefs */
+	           ?werewolf(Accuser, C);
+	           UC = C + 0.1;
+	   		   .abolish(werewolf(Accuser, _));
+	   		   +werewolf(Accuser, UC);
+	   		   /* Add thought proccess to the gui */
+	   		   add_player_thought(Me, Accuser, " has broken a promise he made to me. He may be a werewolf.");
+	       }    
+	   }.
 	   
 /* When the player believes the accused is a werewolf */
-+voted_to_lynch(_, Accuser, Accused)
++voted_to_lynch(Day, Accuser, Accused)
 	: werewolf(Accused, Certainty) & Certainty >= 0.3
 	<- /* The accuser becomes less suspect */
 	   ?townsperson(Accuser, OldCertainty);
@@ -90,7 +119,22 @@ finished_negotiations(Day) :-
 	   +townsperson(Accuser, UpdatedCertainty);
 	   /* Add thought proccess to the gui */
 	   .my_name(Me);
-	   add_player_thought(Me, Accuser, " has voted to lynch ", Accused, " and I think ", Accused, " is a werewolf. ", Accuser, " may be a townsperson.").
+	   add_player_thought(Me, Accuser, " has voted to lynch ", Accused, " and I think ", Accused, " is a werewolf. ", Accuser, " may be a townsperson.");
+	   /* Check if accuser is breaking any promises */
+	   .findall(Name, promised_to_vote_for(Day, Accuser, Name), Promises);
+	   .print("Day=", Day, "Promises=", Promises);
+	   for (.member(Promise, Promises)) {
+	       if (not Promise == Accused) {
+	       	   /* Update beliefs */
+	           ?werewolf(Accuser, C);
+	           UC = C + 0.1;
+	   		   .abolish(werewolf(Accuser, _));
+	   		   +werewolf(Accuser, UC);
+	   		   /* Add thought proccess to the gui */
+	   		   .my_name(Me);
+	   		   add_player_thought(Me, Accuser, " has broken a promise he made to me. He may be a werewolf.");
+	       }    
+	   }.
 	
 /* Remove eliminated players from database and update beliefs */
 /* TODO(jp): Update the beliefs; see (2) */
@@ -331,7 +375,6 @@ finished_negotiations(Day) :-
 	   /* Calculate the utility of this plan */
 	   ?werewolf(Accused, UtilityAccused);
 	   ?werewolf(Promised, UtilityPromised);
-	   .print("UtilityAccused=", UtilityAccused, " UtilityPromised=", UtilityPromised);
 	   Utility = UtilityAccused + UtilityPromised;
 	   .my_name(Me);
 	   +utility(Day, own_decision, Me, Accused, Utility);
@@ -363,6 +406,8 @@ finished_negotiations(Day) :-
 	       ?vote_for_in_exchange(Day, Accuser, Accused, Promised);
 	       .send(Accuser, tell, accept_vote_for_in_exchange(Day, Me, Accused, Promised));
 	       add_player_thought(Me, Accuser, " has promised me that he will vote for ", Promised, " next round if I vote for ", Accused, " now. I'm accepting his proposal.");
+	       /* Remember the promise */
+	       +promised_to_vote_for(Day+1, Accuser, Promised);
 	   };
 	   if (Type == appeal_to_authority) {
 	   	   add_player_thought(Me, Accuser, " has told me that ", Accused, " is a werewolf. I believe him.");
