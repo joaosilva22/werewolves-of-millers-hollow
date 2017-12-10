@@ -34,9 +34,9 @@ living_werewolves(2).
 +day(Day)
 	<- .my_name(Me);
 	   /* Select the player that his most likely a werewolf */
-	   .findall(Certainty, werewolf(_, Certainty), Certainties);
-	   .max(Certainties, MaxCertainty);
-	   ?werewolf(Player, MaxCertainty);
+	   .findall([Wolf, Certainty], werewolf(Wolf, Certainty), Certainties);
+	   lib.select_max_or_random(Certainties, Player);
+	   //?werewolf(Player, MaxCertainty);
 	   .send(game_coordinator, tell, voted_to_lynch(Day, Me, Player));
 	   /* Tell everyone else who the player is voting for */
 	   .findall(Name, player(Name), Players);

@@ -43,12 +43,15 @@ all_werewolves_comunicated(Day) :-
 	
 /* Wake up during the night*/
 +night(Day)
+	: .random(N) & N > 0.1
 	<- .my_name(Me);
 	   .print(Me, " wakes up.");
 	   .findall(Probability, townsperson(_, Probability), Probabilities);
 	   .max(Probabilities, Prob);
 	   .print("My max: ", Prob);
-	   ?townsperson(Name, Prob);
+	   .findall([X,Y], townsperson(X,Y), Ys);
+	   lib.select_max_or_random(Ys, Name);
+	   //?townsperson(Name, Prob);
 	   .findall(Werewolf_Name, werewolf(Werewolf_Name), Werewolves);
 	   .length(Werewolves, CntWerewolves);
 	   .findall(P, townsperson_to_eliminate(Day,_,_,P,-1), Ps);
@@ -62,8 +65,15 @@ all_werewolves_comunicated(Day) :-
 	   {
 	  	 .send(Werewolves, tell, townsperson_to_eliminate(Day,Me,Name, Prob,0)); 	
 	   }.
-	  
-
+	   
++night(Day)
+ 	<- .my_name(Me);
+ 	   .findall(Name, player(Name), Players);
+ 	   werewolves_of_millers_hollow.actions.random_player(Players, Player);
+	   .send(game_coordinator, tell, voted_to_eliminate(Day, Me, Player));
+	   .findall(Werewolf_Name, werewolf(Werewolf_Name), Werewolves);
+	   ?townsperson(Player, Prob);
+	   .send(Werewolves, tell, townsperson_to_eliminate(Day,Me,Player,Prob,0)).
 	   
 +townsperson_to_eliminate(Day,From, Player, Pro, Type)
 	: all_werewolves_comunicated(Day)	   
