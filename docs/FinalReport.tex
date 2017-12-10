@@ -273,6 +273,8 @@ It has the following characteristics:
 \includegraphics[scale=0.6]{./images/sequence_diagram_day_vote.png}
 \end{center}
 
+\subsection{Werewolves votes during the night}
+During the night the game coordinator wakes up the werewolves (night(d:Number)), in order to them vote on the townperson to be eliminated (voted\_to\_eliminate(d:Number,f,p:Player)). To be more effective, each one of them tell to the rest of the werewolves the townperson that they believe that is more likely to know is true identity. After everyone said their opinion it is voted to eliminate on the townperson that collecting everyone opinion is the one that as the highest probability of knowing the true identity of one of them.
 \begin{center}
 \includegraphics[scale=0.6]{./images/sequence_diagram_night_vote.png}
 \end{center}
@@ -285,6 +287,8 @@ It has the following characteristics:
 \includegraphics[scale=0.6]{./images/sequence_diagram_appeal_to_authority.png}
 \end{center}
 
+\subsection{Fortune Teller}
+The game coordiantor wakes up the fortune teller (find\_true\_personality(d:Number)). Now the player that the fortune teller choose now the true personality, depends if the fortune teller is random or stratigic. If it's random then the chosen player is random player of wich the true identity is unknown, sending to the game coordinator  tell\_personality(p:Player, f:FromPlayer) and then the game coordinator reveal the true identity of a player to the fortune teller with true\_personality(p:player, r:role). If the fortune teller is strategic the only variation is on the way that the player is choose, because now the fortune teller as some believes regarding the players. On the begin since, she does not have any opinion on the players, the behaviour is like a random fortune teller, but after the first day it is choosen the player that is most likely a werewolf. 
 \begin{center}
 \includegraphics[scale=0.6]{./images/sequence_diagram_fortune_teller.png}
 \end{center}
