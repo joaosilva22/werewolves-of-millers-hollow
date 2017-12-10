@@ -2,8 +2,9 @@
 enough_players :- 
 	required_players(MinPlayer) &
 	.count(role(townsperson, _), CntTownsfolk) &
+	.count(role(fortune_teller,_), CntFortuneTellers) &
 	.count(role(werewolf, _), CntWerewolves) &
-	CntPlayer = CntTownsfolk + CntWerewolves  + 1 &
+	CntPlayer = CntTownsfolk + CntWerewolves  + CntFortuneTellers &
 	CntPlayer >= MinPlayer.
 	
 all_werewolves_voted(Day) :-
@@ -47,7 +48,7 @@ werewolves_have_won :-
 +create_agents(RandomTownsfolkCnt, TownsfolkCnt, NegotiatorTownsfolkCnt, RandomWerewolvesCnt, WerewolvesCnt, NegotiatorWerewolvesCnt, RandomFortuneTellersCnt, StrategicFortuneTellersCnt)
 	: not setup
 	<- .abolish(required_players(_));
-	   .print("RandomTownsfolkCnt=", RandomTownsfolkCnt, " TownsfolkCnt=", TownsfolkCnt, " RandomWerewolvesCnt=", RandomWerewolvesCnt, " WerewolvesCnt=", WerewolvesCnt);
+	   .print("RandomTownsfolkCnt=", RandomTownsfolkCnt, " TownsfolkCnt=", TownsfolkCnt, " RandomWerewolvesCnt=", RandomWerewolvesCnt, " WerewolvesCnt=", WerewolvesCnt, " NegotiatorWerewolvesCnt=", NegotiatorWerewolvesCnt, " RandomFortuneTellersCnt=",  RandomFortuneTellersCnt, " StrategicFortuneTellersCnt=", StrategicFortuneTellersCnt);
 	   RequiredPlayers = RandomTownsfolkCnt + TownsfolkCnt + NegotiatorTownsfolkCnt + RandomWerewolvesCnt + WerewolvesCnt + NegotiatorWerewolvesCnt + RandomFortuneTellersCnt + StrategicFortuneTellersCnt;
 	   +required_players(RequiredPlayers);
 	   .print("RequiredPlayers=", RequiredPlayers);

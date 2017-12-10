@@ -103,10 +103,13 @@
 	   if(Valid == false | Valid == null)
 	   {
 		?werewolf(Accuser,Flag, Certainty);
-	   	UpdatedCertainty = Certainty + 0.1;
-	   	.abolish(werewolf(Accuser,_,_));
-	   	+werewolf(Accuser,Flag ,UpdatedCertainty);   	
-	   	update_beliefs_in_werewolves(Accused, Accuser, UpdatedCertainty);
+		if(Certainty < 0.9)
+		{
+	   	  UpdatedCertainty = Certainty + 0.1;
+	   	  .abolish(werewolf(Accuser,_,_));
+	   	  +werewolf(Accuser,Flag ,UpdatedCertainty);   	
+	   	  update_beliefs_in_werewolves(Accused, Accuser, UpdatedCertainty);
+	   	}
 	   }.
 	   	   
 /* When the player believes the accused is a townsperson */
@@ -114,27 +117,31 @@
 	: (townsperson(Accused,null,Certainty) | townsperson(Accused,true,Certainty)) & Certainty >= 0.3
 	<- /* The accuser becomes more suspect */
 	   ?werewolf(Accuser,Flag ,OldCertainty);
-	   UpdatedCertainty = OldCertainty + 0.1;
-	   .abolish(werewolf(Accuser,_ , _));
-	   +werewolf(Accuser,Flag, UpdatedCertainty);
-	   /* Add thought proccess to the gui */
-	   .my_name(Me);
-	   update_beliefs_in_werewolves(Me, Accuser, UpdatedCertainty);
-	   add_player_thought(Me, Accuser, " has voted to lynch ", Accused, " but I think ", Accused, " is a townsperson. ", Accuser, " may be a werewolf.").
-	   
+	   	if(OldCertainty < 0.9)
+		{
+	     UpdatedCertainty = OldCertainty + 0.1;
+	     .abolish(werewolf(Accuser,_ , _));
+	     +werewolf(Accuser,Flag, UpdatedCertainty);
+	     /* Add thought proccess to the gui */
+	     .my_name(Me);
+	     update_beliefs_in_werewolves(Me, Accuser, UpdatedCertainty);
+	     add_player_thought(Me, Accuser, " has voted to lynch ", Accused, " but I think ", Accused, " is a townsperson. ", Accuser, " may be a werewolf.");
+	   }.
 /* When the player believes the accused is a werewolf */
 +voted_to_lynch(_, Accuser, Accused)
 	: (werewolf(Accused,null,Certainty) | werewolf(Accused,true,Certainty)) & Certainty >= 0.3
 	<- /* The accuser becomes less suspect */
 	   ?townsperson(Accuser,Flag ,OldCertainty);
-	   UpdatedCertainty = OldCertainty + 0.1;
-	   .abolish(townsperson(Accuser, _,_));
-	   +townsperson(Accuser,Flag, UpdatedCertainty);
-	   /* Add thought proccess to the gui */
-	   .my_name(Me);
-	   update_beliefs_in_townsfolk(Me, Accuser, UpdatedCertainty);
-	   add_player_thought(Me, Accuser, " has voted to lynch ", Accused, " and I think ", Accused, " is a werewolf. ", Accuser, " may be a townsperson.").		   
-
+	   if(OldCertainty < 0.9)
+	   { 	
+	   	UpdatedCertainty = OldCertainty + 0.1;
+	   	.abolish(townsperson(Accuser, _,_));
+	   	+townsperson(Accuser,Flag, UpdatedCertainty);
+	  	/* Add thought proccess to the gui */
+	   	.my_name(Me);
+	   	update_beliefs_in_townsfolk(Me, Accuser, UpdatedCertainty);
+	   	add_player_thought(Me, Accuser, " has voted to lynch ", Accused, " and I think ", Accused, " is a werewolf. ", Accuser, " may be a townsperson.");		   
+		}.
 /* Remove eliminated player from database */
 +dead(_, _ , Player, Role)
 	: .my_name(Player)
