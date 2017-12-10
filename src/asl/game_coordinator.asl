@@ -53,27 +53,39 @@ werewolves_have_won :-
 	   +required_players(RequiredPlayers);
 	   .print("RequiredPlayers=", RequiredPlayers);
 	   for (.range(I, 1, RandomWerewolvesCnt)) {
-	       .concat("random_werewolf", I, Name);
+	       //.concat("random_werewolf", I, Name);
+	       lib.random_name(FullName);
+	       .concat(FullName, "_R", Name);
 	       .create_agent(Name, "src/asl/werewolf_random.asl");
 	   };
 	   for (.range(I, 1, WerewolvesCnt)) {
-	       .concat("werewolf", I, Name);
+	       //.concat("werewolf", I, Name);
+	       lib.random_name(FullName);
+	       .concat(FullName, "_S", Name);
 	       .create_agent(Name, "src/asl/werewolf_strategic.asl");
 	   };
 	   for (.range(I, 1, NegotiatorWerewolvesCnt)) {
-	       .concat("negotiator_werewolf", I, Name);
+	       //.concat("negotiator_werewolf", I, Name);
+	       lib.random_name(FullName);
+	       .concat(FullName, "_N", Name);
 	       .create_agent(Name, "src/asl/werewolf_negotiator.asl");	
 	   };
 	   for (.range(I, 1, RandomTownsfolkCnt)) {
-	   	   .concat("random_townsperson", I, Name);
+	   	   //.concat("random_townsperson", I, Name);
+	   	   lib.random_name(FullName);
+	       .concat(FullName, "_R", Name);
 	   	   .create_agent(Name, "src/asl/townsperson_random.asl");
 	   };
 	   for (.range(I, 1, TownsfolkCnt)) {
-		   .concat("townsperson", I, Name);
+		   //.concat("townsperson", I, Name);
+		   lib.random_name(FullName);
+	       .concat(FullName, "_S", Name);
 	       .create_agent(Name, "src/asl/townsperson_strategic.asl");	
 	   };
 	   for (.range(I, 1, NegotiatorTownsfolkCnt)) {
-	   	   .concat("negotiator_townsperson", I, Name);
+	   	   //.concat("negotiator_townsperson", I, Name);
+	   	   lib.random_name(FullName);
+	       .concat(FullName, "_N", Name);
 	   	   .create_agent(Name, "src/asl/townsperson_negotiator.asl");
 	   };
 	   for (.range(I, 1, RandomFortuneTellersCnt)) {
